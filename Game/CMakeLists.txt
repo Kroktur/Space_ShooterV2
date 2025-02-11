@@ -24,7 +24,7 @@ PUBLIC
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${HEADER_DIR}>
 )
-
+include_directories(${CMAKE_SOURCE_DIR}/KT_Library/KT_Library/include)
 target_include_directories(Game PUBLIC ${SFML_INCLUDE_DIR}) 
 
 link_directories(${SFML_LIB_DIR})
