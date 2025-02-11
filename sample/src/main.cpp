@@ -52,6 +52,6 @@ int main() {
         window.draw(circle);             // Dessiner le cercle
         window.display();                // Afficher le rendu
     }
-
+    std::cout << "je test ma super mega branche qui tue" << std::endl;
     return 0;
 }
