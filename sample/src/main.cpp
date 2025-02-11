@@ -2,8 +2,9 @@
 #include <SFML/Audio.hpp>
 #include <SFML/Network.hpp>
 #include <iostream>
-
+#include "KT_Array.h"
 int main() {
+    KT::Array<int,3> test;
    
     sf::RenderWindow window(sf::VideoMode(800, 600), "SFML Test");
 
