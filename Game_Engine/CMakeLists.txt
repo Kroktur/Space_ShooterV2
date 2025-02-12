@@ -6,9 +6,11 @@ set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 set(HEADERS
  ${HEADER_DIR}/Base.h
+ ${HEADER_DIR}/SceneManager.h
 )
 set(SOURCES
 ${SOURCE_DIR}/Base.cpp
+${SOURCE_DIR}/SceneManager.cpp
 )
 add_library(${PROJECT_NAME}
 

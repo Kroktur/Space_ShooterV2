@@ -7,7 +7,7 @@ int main() {
     KT::Array<int,3> test;
    
     sf::RenderWindow window(sf::VideoMode(800, 600), "SFML Test");
-
+ 
   
     sf::CircleShape circle(100);
     circle.setFillColor(sf::Color::Red);
