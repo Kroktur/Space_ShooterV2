@@ -10,6 +10,9 @@
 #include <SFML/Graphics.hpp>
 #include <memory>
 #include "KT_Vector.h"
+
+//TODO 
+#include <iostream>
 using sfStyle = int;
 
 class SceneBase
@@ -17,7 +20,7 @@ class SceneBase
 public:
 	void Update(const float& deltatime){}
 	void ProssesInput(const sf::Event& event){}
-	void Render();
+	void Render() { std::cout << "a"; }
 	void setSceneIdx(int i) { sceneidx = i; }
 	int getSceneIdx() { return sceneidx; }
 	sf::Time getRefreshTime() { return sf::seconds(1.f / 60); }
@@ -43,6 +46,11 @@ public:
 	 * @brief main function which will contain the gaming loop
 	 * 
 	 */
+	/**
+	 * @brief destructor
+	 * 
+	 */
+	~SceneManager();
 	void Exe();
 	/**
 	 * @brief Add A scene to the Manager and auto set the first scene
@@ -50,7 +58,7 @@ public:
 	 * 
 	 * \param SceneBase scene
 	 */
-	void AddScene( std::unique_ptr<SceneBase> scene);
+	void AddScene( SceneBase* scene);
 	/**
 	 * @bruef Set The current scene
 	 * 
@@ -64,8 +72,8 @@ public:
 	 */
 	sf::RenderWindow* getWindow();
 private:
-	std::unique_ptr<sf::RenderWindow> m_window;
-	KT::Vector<std::unique_ptr<SceneBase>> m_scene;
+	sf::RenderWindow* m_window;
+	KT::Vector<SceneBase*> m_scene;
 	SceneBase* m_currentScene;
 	sf::Event m_event;
 };

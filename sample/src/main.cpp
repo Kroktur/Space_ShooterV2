@@ -3,7 +3,11 @@
 #include <SFML/Network.hpp>
 #include <iostream>
 #include "KT_Array.h"
+#include "SceneManager.h"
 int main() {
+    SceneManager a(800, 800, "const std::string & title");
+    a.AddScene(new SceneBase);
+    a.Exe();
     KT::Array<int,3> test;
    
     sf::RenderWindow window(sf::VideoMode(800, 600), "SFML Test");
