@@ -44,7 +44,7 @@ void SceneManager::Exe()
 
 }
 
-void SceneManager::AddScene(const std::unique_ptr<SceneBase>& scene)
+void SceneManager::AddScene(std::unique_ptr<SceneBase> scene)
 {
 	m_scene.pushBack(scene);
 	m_scene.back()->setSceneIdx(m_scene.Size() - 1);

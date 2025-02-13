@@ -50,7 +50,7 @@ public:
 	 * 
 	 * \param SceneBase scene
 	 */
-	void AddScene(const std::unique_ptr<SceneBase>& scene);
+	void AddScene( std::unique_ptr<SceneBase> scene);
 	/**
 	 * @bruef Set The current scene
 	 * 
