@@ -4,9 +4,15 @@
 #include <iostream>
 #include "KT_Array.h"
 #include "SceneManager.h"
-int main() {
-    SceneManager a(800, 800, "const std::string & title");
-    a.AddScene(new SceneBase);
+#include "Game.h"
+#include <filesystem>
+int main(int argc, char** argv) {
+    std::cout << argv[0] << std::endl;
+    std::filesystem::path execFilePath(argv[0]);
+    auto filepath = execFilePath.parent_path().parent_path().parent_path().parent_path().parent_path() / "resource" / "galaxie2.bmp";
+    std::cout << filepath.string();
+    SceneManager a( 800, 800, "const std::string & title");
+    a.AddScene(new Game(a.getWindow(),60,argv[0]));
     a.Exe();
     KT::Array<int,3> test;
    

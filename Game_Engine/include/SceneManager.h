@@ -8,25 +8,10 @@
  *********************************************************************/
 #include<string>
 #include <SFML/Graphics.hpp>
-#include <memory>
 #include "KT_Vector.h"
-
-//TODO 
-#include <iostream>
+#include "TextureCache.h"
+class ISceneBase;
 using sfStyle = int;
-
-class SceneBase
-{
-public:
-	void Update(const float& deltatime){}
-	void ProssesInput(const sf::Event& event){}
-	void Render() { std::cout << "a"; }
-	void setSceneIdx(int i) { sceneidx = i; }
-	int getSceneIdx() { return sceneidx; }
-	sf::Time getRefreshTime() { return sf::seconds(1.f / 60); }
-private:
-	int sceneidx = 0;
-};
 /**
  * @brief SceneManager is a class that can manage scene
  */
@@ -35,7 +20,7 @@ class SceneManager
 public:
 	/**
 	 * @brief Constructor
-	 * 
+	 * \param std::string execFilePath
 	 * \param size_t width
 	 * \param size_t height
 	 * \param std::string title
@@ -58,9 +43,10 @@ public:
 	 * 
 	 * \param SceneBase scene
 	 */
-	void AddScene( SceneBase* scene);
+	void AddScene( ISceneBase* scene);
 	/**
 	 * @bruef Set The current scene
+
 	 * 
 	 * \param int idx
 	 */
@@ -73,7 +59,7 @@ public:
 	sf::RenderWindow* getWindow();
 private:
 	sf::RenderWindow* m_window;
-	KT::Vector<SceneBase*> m_scene;
-	SceneBase* m_currentScene;
+	KT::Vector<ISceneBase*> m_scene;
+	ISceneBase* m_currentScene;
 	sf::Event m_event;
 };

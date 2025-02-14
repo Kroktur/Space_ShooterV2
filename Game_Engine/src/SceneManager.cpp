@@ -1,4 +1,5 @@
 #include "SceneManager.h"
+#include "SceneBase.h"
 /*****************************************************************//**
  * \file   SceneManager.cpp
  * \brief  Implementation of SceneManager.h
@@ -14,17 +15,12 @@ SceneManager::~SceneManager()
 	delete m_window;
 	m_window = nullptr;
 
-	if (!m_scene.Empty())
-	{
-		delete m_currentScene;
-		m_currentScene = nullptr;
-	}
-	
-	for (size_t idx = m_scene.Size(); idx > 0; --idx)
+	for (std::make_signed_t<size_t> idx = m_scene.Size() - 1 ; idx >= 0; --idx)
 	{
 		delete m_scene[idx];
 	}
 	m_scene.clear();
+
 }
 
 void SceneManager::Exe()
@@ -90,7 +86,7 @@ void SceneManager::Exe()
 
 }
 
-void SceneManager::AddScene(SceneBase* scene)
+void SceneManager::AddScene(ISceneBase* scene)
 {
 	m_scene.pushBack(scene);
 	m_scene.back()->setSceneIdx(m_scene.Size() - 1);
