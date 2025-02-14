@@ -5,10 +5,16 @@ set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 
 set(HEADERS
- ${HEADER_DIR}/Base.h
+ ${HEADER_DIR}/TextureCache.h
+ ${HEADER_DIR}/SceneManager.h
+ ${HEADER_DIR}/SceneBase.h
+ ${HEADER_DIR}/RandomNumber.h
 )
 set(SOURCES
-${SOURCE_DIR}/Base.cpp
+${SOURCE_DIR}/TextureCache.cpp
+${SOURCE_DIR}/SceneManager.cpp
+${SOURCE_DIR}/SceneBase.cpp
+${SOURCE_DIR}/RandomNumber.cpp
 )
 add_library(${PROJECT_NAME}
 
@@ -24,17 +30,29 @@ PUBLIC
 include_directories(${CMAKE_SOURCE_DIR}/KT_Library/KT_Library/include)
 target_include_directories(Game_Engine PUBLIC ${SFML_INCLUDE_DIR}) 
 link_directories(${SFML_LIB_DIR})
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 target_link_libraries(${PROJECT_NAME}
-PUBLIC
- Game
- PRIVATE
- sfml-graphics
- sfml-window
- sfml-system
- sfml-audio
- sfml-network
+        PRIVATE
+            sfml-graphics-d
+            sfml-window-d
+            sfml-system-d
+            sfml-audio-d
+            sfml-network-d
+    )
+elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+target_link_libraries(${PROJECT_NAME}
+        PRIVATE
+            sfml-graphics
+            sfml-window
+            sfml-system
+            sfml-audio
+            sfml-network
+    )
+endif()
+target_link_libraries(${PROJECT_NAME}
+    PUBLIC
+        Game
 )
-
 add_custom_command(TARGET Game_Engine POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${SFML_BIN_DIR} $<TARGET_FILE_DIR:Game_Engine>
