@@ -1,39 +1,49 @@
 #pragma once
-
+/*****************************************************************//**
+ * \file   TextureCache.h
+ * \brief  contain the class TextureCache
+ *
+ * \author kroktur
+ * \date   February 2025
+ *********************************************************************/
 #include <vector>
 #include <string>
 
 namespace sf { class Texture; }
-//
-//class TextureCache
-//{
-//public:
-//    TextureCache(const std::string& execFilePath);
-//    sf::Texture& getTexture(const std::string& filename);
-//    ~TextureCache();
-//
-//private:
-//    struct TextureInfo
-//    {
-//        sf::Texture* texture;
-//        std::string path;
-//    };
-//
-//    std::string getAbsoluteFilepath(const std::string& filename);
-//
-//    std::vector<TextureInfo> m_allTextureInfos;
-//    std::string m_execFilePath;
-//};
+
+/**
+ * @brief class TextureCache
+ */
 class TextureCache
 {
 public:
-	sf::Texture& getTexture(const std::string& path);
+	/**
+	 * @brief Constructor take solutionpath
+	 * @param std::string execFilePath 
+	 */
+	TextureCache(const std::string& execFilePath);
+	/**
+	 * @brief getTexture 
+	 * @param std::string filename 
+	 * @return sf::Texture&
+	 */
+	sf::Texture& getTexture(const std::string& filename);
+	/**
+	 * @brief destructor Cache
+	 */
 	~TextureCache();
+
 private:
-	struct TextureInfo {
-		sf::Texture* texture;
-		std::string path;
-	};
-	std::vector<TextureInfo> m_allTextureInfos;
+    struct TextureInfo
+    {
+        sf::Texture* texture;
+        std::string path;
+    };
+
+    std::string getAbsoluteFilepath(const std::string& filename);
+
+    std::vector<TextureInfo> m_allTextureInfos;
+    std::string m_execFilePath;
 };
+
 

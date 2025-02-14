@@ -26,7 +26,7 @@ public:
 	 * \param std::string title
 	 * \param sf::Style / int style
 	 */
-	SceneManager(const size_t& width, const size_t& height, const std::string& title, const sfStyle& style = sf::Style::Default);
+	SceneManager(const std::string& execFilePath, const size_t& width, const size_t& height, const std::string& title, const sfStyle& style = sf::Style::Default);
 	/**
 	 * @brief main function which will contain the gaming loop
 	 * 
@@ -57,9 +57,15 @@ public:
 	 * \return sf::RenderWindow* 
 	 */
 	sf::RenderWindow* getWindow();
+	/**
+	 * @brief  get The texture Cash
+	 * @return TextureCache* 
+	 */
+	TextureCache* geTextureCash();
 private:
 	sf::RenderWindow* m_window;
-	std::vector<ISceneBase*> m_scene;
+	KT::Vector<ISceneBase*> m_scene;
 	ISceneBase* m_currentScene;
 	sf::Event m_event;
+	TextureCache* m_texture;
 };

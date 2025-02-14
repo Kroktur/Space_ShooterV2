@@ -8,11 +8,13 @@ set(HEADERS
  ${HEADER_DIR}/TextureCache.h
  ${HEADER_DIR}/SceneManager.h
  ${HEADER_DIR}/SceneBase.h
+ ${HEADER_DIR}/RandomNumber.h
 )
 set(SOURCES
 ${SOURCE_DIR}/TextureCache.cpp
 ${SOURCE_DIR}/SceneManager.cpp
 ${SOURCE_DIR}/SceneBase.cpp
+${SOURCE_DIR}/RandomNumber.cpp
 )
 add_library(${PROJECT_NAME}
 
