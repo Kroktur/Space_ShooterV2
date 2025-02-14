@@ -6,13 +6,14 @@
 #include "SceneManager.h"
 #include "Game.h"
 #include <filesystem>
+#include "TextureCache.h"
 int main(int argc, char** argv) {
     std::cout << argv[0] << std::endl;
     std::filesystem::path execFilePath(argv[0]);
-    auto filepath = execFilePath.parent_path().parent_path().parent_path().parent_path().parent_path() / "resource" / "galaxie2.bmp";
+    auto filepath = execFilePath.parent_path().parent_path().parent_path().parent_path().parent_path() / "Re" / "galaxie3.png";
     std::cout << filepath.string();
     SceneManager a( 800, 800, "const std::string & title");
-    a.AddScene(new Game(a.getWindow(),60,argv[0]));
+    a.AddScene(new Game(a.getWindow(),60,new TextureCache(/*argv[0]*/)));
     a.Exe();
     KT::Array<int,3> test;
    

@@ -59,7 +59,7 @@ public:
 	sf::RenderWindow* getWindow();
 private:
 	sf::RenderWindow* m_window;
-	KT::Vector<ISceneBase*> m_scene;
+	std::vector<ISceneBase*> m_scene;
 	ISceneBase* m_currentScene;
 	sf::Event m_event;
 };

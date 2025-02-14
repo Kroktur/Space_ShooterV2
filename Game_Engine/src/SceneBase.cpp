@@ -1,11 +1,11 @@
 #include "SceneBase.h"
 
-ISceneBase::ISceneBase(sf::RenderWindow* window, const float& framerate, const std::string& execFilePath) :
+ISceneBase::ISceneBase(sf::RenderWindow* window, const float& framerate, TextureCache* texture) :
 m_Window(window)
 , m_FefreshTime(sf::seconds(1.f /framerate))
 , m_Sceneidx(0)
 ,m_Background(sf::Vector2f(100,10000))
-, m_texture(new TextureCache(execFilePath))
+, m_texture(texture)
 {
 	
 }

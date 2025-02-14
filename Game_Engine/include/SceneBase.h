@@ -11,10 +11,11 @@
 #include <SFML/System.hpp>
 #include "KT_Vector.h"
 #include "TextureCache.h"
+
 class ISceneBase
 {
 public:
-	ISceneBase(sf::RenderWindow* window , const float& framerate , const std::string& execFilePath);
+	ISceneBase(sf::RenderWindow* window , const float& framerate , TextureCache* texture);
 	virtual ~ISceneBase();
 	virtual void Update(const float& deltatime) = 0;
 	virtual void ProssesInput(const sf::Event& event) = 0;

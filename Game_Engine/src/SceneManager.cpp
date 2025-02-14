@@ -15,7 +15,7 @@ SceneManager::~SceneManager()
 	delete m_window;
 	m_window = nullptr;
 
-	for (std::make_signed_t<size_t> idx = m_scene.Size() - 1 ; idx >= 0; --idx)
+	for (std::make_signed_t<size_t> idx = m_scene.size() - 1 ; idx >= 0; --idx)
 	{
 		delete m_scene[idx];
 	}
@@ -88,9 +88,9 @@ void SceneManager::Exe()
 
 void SceneManager::AddScene(ISceneBase* scene)
 {
-	m_scene.pushBack(scene);
-	m_scene.back()->setSceneIdx(m_scene.Size() - 1);
-	if (m_scene.Size() == 1)
+	m_scene.push_back(scene);
+	m_scene.back()->setSceneIdx(m_scene.size() - 1);
+	if (m_scene.size() == 1)
 	{
 		SetScene(0);
 	}
