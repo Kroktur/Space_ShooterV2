@@ -10,7 +10,7 @@ ISceneBase::ISceneBase(sf::RenderWindow* window, const float& framerate, Texture
 m_Window(window)
 , m_FefreshTime(sf::seconds(1.f /framerate))
 , m_Sceneidx(0)
-,m_Background(sf::Vector2f(1000,1000))
+,m_Background(sf::Vector2f(5000,5000))
 , m_texture(texture)
 {
 	m_Background.setTexture(&m_texture->getTexture("galaxie3.png"));
