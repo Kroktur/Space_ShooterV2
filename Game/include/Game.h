@@ -7,6 +7,7 @@
  * \date   February 2025
  *********************************************************************/
 #include "SceneBase.h"
+class IGameObject;
 /**
  * @brief Derived ISceneBase  Game
  */
@@ -40,5 +41,6 @@ public:
 	virtual void Render() override;
 private:
 	sf::RectangleShape m_Ship;
+	IGameObject* m_object;
 };
 

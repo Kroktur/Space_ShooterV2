@@ -1,4 +1,5 @@
 #include "Game.h"
+#include "IGameObject.h"
 /*****************************************************************//**
  * \file   RandomNumber.cpp
  * \brief  Implementation of RandomNumber.h
