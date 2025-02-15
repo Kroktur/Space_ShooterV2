@@ -7,9 +7,11 @@ set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 set(HEADERS
  ${HEADER_DIR}/Game.h
+ ${HEADER_DIR}/GameObject.h
 )
 set(SOURCES
 ${SOURCE_DIR}/Game.cpp
+${SOURCE_DIR}/GameObject.cpp
 )
 
 add_library(${PROJECT_NAME}

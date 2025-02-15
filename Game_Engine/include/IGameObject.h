@@ -34,7 +34,8 @@ public:
 	void Update(const float& deltatime) override = 0;
 	void ProssesInput(const sf::Event& event) override = 0;
 	void Render() = 0;
-	float& getLife() { return m_life; }
+	void ChangeLife(const float& life) { m_life += life; }
+	float getCurrentLife() { return m_life; }
 protected:
 	float m_life;
 };

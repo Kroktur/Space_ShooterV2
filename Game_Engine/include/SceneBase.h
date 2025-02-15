@@ -25,7 +25,7 @@ public:
 	/**
 	 * @brief default destructor
 	 */
-	virtual ~ISceneBase() = default;
+	virtual ~ISceneBase();
 	/**
 	 * @brief virtual Update 
 	 * @param float deltatime 
@@ -60,8 +60,13 @@ public:
 	 * @return sf::RenderWindow*
 	 */
 	sf::RenderWindow* getWindow();
+	/**
+	 * @brief  return the textureCache
+	 * @return textureCache*
+	 */
+	TextureCache* getTexture() { return m_texture; }
 protected:
-	sf::RectangleShape m_Background;
+	sf::RectangleShape* m_Background;
 	TextureCache* m_texture;
 private:
 	int m_Sceneidx;
