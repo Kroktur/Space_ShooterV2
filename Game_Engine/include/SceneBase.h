@@ -6,10 +6,8 @@
  * \author kroktur
  * \date   February 2025
  *********************************************************************/
-#include<string>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
-#include "KT_Vector.h"
 #include "TextureCache.h"
 /**
  * @brief  class ISceneBase Interaface of Scene 

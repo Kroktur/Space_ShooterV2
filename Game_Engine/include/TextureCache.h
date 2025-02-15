@@ -6,7 +6,7 @@
  * \author kroktur
  * \date   February 2025
  *********************************************************************/
-#include <vector>
+#include "KT_Vector.h"
 #include <string>
 
 namespace sf { class Texture; }
@@ -42,7 +42,7 @@ private:
 
     std::string getAbsoluteFilepath(const std::string& filename);
 
-    std::vector<TextureInfo> m_allTextureInfos;
+    KT::Vector<TextureInfo> m_allTextureInfos;
     std::string m_execFilePath;
 };
 

@@ -1,8 +1,11 @@
 #include "RandomNumber.h"
-#include <cmath>
-
-#include <ctime>
-
+/*****************************************************************//**
+ * \file   RandomNumber.cpp
+ * \brief  Implementation of RandomNumber.h
+ *
+ * \author kroktur
+ * \date   February 2025
+ *********************************************************************/
 RandomNumber::RandomNumber() :m_gen(m_rd())
 {}
 

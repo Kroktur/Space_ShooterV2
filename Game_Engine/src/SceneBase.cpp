@@ -1,5 +1,11 @@
 #include "SceneBase.h"
-
+/*****************************************************************//**
+ * \file   SceneBase.cpp
+ * \brief  Implementation of SceneBase.h
+ *
+ * \author kroktur
+ * \date   February 2025
+ *********************************************************************/
 ISceneBase::ISceneBase(sf::RenderWindow* window, const float& framerate, TextureCache* texture) :
 m_Window(window)
 , m_FefreshTime(sf::seconds(1.f /framerate))

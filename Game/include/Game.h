@@ -7,7 +7,6 @@
  * \date   February 2025
  *********************************************************************/
 #include "SceneBase.h"
-
 /**
  * @brief Derived ISceneBase  Game
  */

@@ -1,6 +1,11 @@
 #include "Game.h"
-// TODO
-#include <iostream>
+/*****************************************************************//**
+ * \file   RandomNumber.cpp
+ * \brief  Implementation of RandomNumber.h
+ *
+ * \author kroktur
+ * \date   February 2025
+ *********************************************************************/
 Game::Game(sf::RenderWindow* window, const float& framerate, TextureCache* texture): ISceneBase(window,framerate, texture),m_Ship(sf::Vector2f(50,50))
 {
 	
