@@ -28,10 +28,10 @@ std::string TextureCache::getAbsoluteFilepath(const std::string& filename)
 sf::Texture& TextureCache::getTexture(const std::string& filename)
 {
     std::string path = getAbsoluteFilepath(filename);
-    for (size_t idx = 0; idx < m_allTextureInfos.Size(); ++ idx)
+    for (auto& texture : m_allTextureInfos)
     {
-        if (m_allTextureInfos[idx].path == path)
-            return *m_allTextureInfos[idx].texture;
+        if (texture.path == path)
+            return *texture.texture;
     }
 
     TextureInfo ti;
