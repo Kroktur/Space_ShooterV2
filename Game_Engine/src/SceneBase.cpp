@@ -41,3 +41,4 @@ sf::RenderWindow* ISceneBase::getWindow()
 {
 	return m_Window;
 }
+

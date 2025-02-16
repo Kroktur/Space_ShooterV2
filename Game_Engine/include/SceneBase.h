@@ -73,3 +73,4 @@ private:
 	sf::RenderWindow* m_Window;
 	sf::Time m_FefreshTime;
 };
+

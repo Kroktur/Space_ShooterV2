@@ -7,7 +7,7 @@
  * \date   February 2025
  *********************************************************************/
 #include "SceneBase.h"
-
+#include "GameObject.h"
 class IGameObject;
 /**
  * @brief Derived ISceneBase  Game
@@ -45,5 +45,6 @@ private:
 	sf::RectangleShape m_Ship;
 	//TODO
 	KT::Vector<IGameObject*> m_object;
+	Cursor cursor;
 };
 
