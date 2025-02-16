@@ -9,12 +9,10 @@
  * \author kroktur
  * \date   February 2025
  *********************************************************************/
-Game::Game(sf::RenderWindow* window, const float& framerate, TextureCache* texture): ISceneBase(window,framerate, texture),m_Ship(sf::Vector2f(50,50))
+Game::Game(sf::RenderWindow* window, const float& framerate, TextureCache* texture): ISceneBase(window,framerate, texture)
 {
-	
-	m_Ship.setTexture(&m_texture->getTexture("galaxie3.png"));
-	m_Ship.setOrigin(m_Ship.getSize().x / 2, m_Ship.getSize().y / 2);
-	m_Ship.setPosition(getWindow()->getSize().x / 2, getWindow()->getSize().y / 2);
+	m_Background->setSize(sf::Vector2f(10000, 10000));
+	m_Background->setTexture(&m_texture->getTexture("galaxie3.png"));
 	m_object.pushBack(new Ship(this, m_Background));
 }
 

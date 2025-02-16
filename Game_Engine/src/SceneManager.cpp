@@ -67,27 +67,34 @@ void SceneManager::Exe()
 			}
 		}
 
-		/**
-		 * @brief prosses input for the scene
-		 */
-		m_currentScene->ProssesInput(m_event);
+		if (m_window->hasFocus())
+		{
+			sf::Vector2i mousePos = sf::Mouse::getPosition(*m_window);
+			if (mousePos.x >= 0 && mousePos.x < m_window->getSize().x && mousePos.y >= 0 && mousePos.y < m_window->getSize().y)
+			{
 
+				/**
+				 * @brief prosses input for the scene
+				 */
+				m_currentScene->ProssesInput(m_event);
+			}
+		}
 		/**
 		 * @brief update while render is late
 		 */
 		while (m_currentScene->getRefreshTime().asMilliseconds() > 0.0
 			&& lag >= m_currentScene->getRefreshTime().asMilliseconds())
 		{
-
 			m_currentScene->Update(elapsed);
 			lag -= m_currentScene->getRefreshTime().asMilliseconds();
 		}
-	
 		/**
-		 * @brief drow everithing
-		 */
+		* @brief drow everithing
+		*/
 		m_currentScene->Render();
 		m_window->display();
+	
+	
 	}
 
 
