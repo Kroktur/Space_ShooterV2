@@ -1,5 +1,11 @@
 #pragma once
+#include <KT_Array.h>
+
 #include "SceneBase.h"
+float convertRadToDeg(const float& rad);
+
+float convertDegToRad(const float& deg);
+
 class IGameObject
 {
 public:
@@ -163,20 +169,21 @@ public:
 
 class CircleSFML
 {
+public:
 	CircleSFML(float r, sf::Vector2f position, sf::Vector2f Origin) :m_shape(r)
 	{
-		m_shape.setPosition(position);
+		m_shape.setPosition(sf::Vector2f(position));
 		m_shape.setOrigin(Origin);
 	}
 	CircleSFML(float r, sf::Vector2f position) :m_shape(r)
 	{
 		m_shape.setPosition(position);
-		m_shape.setOrigin(m_shape.getRadius() / 2, m_shape.getRadius() / 2);
+		m_shape.setOrigin(m_shape.getRadius(), m_shape.getRadius());
 	}
 	CircleSFML(float r, ISceneBase* scene) :m_shape(r)
 	{
 		m_shape.setPosition(scene->getWindow()->getSize().x / 2, scene->getWindow()->getSize().y / 2);
-		m_shape.setOrigin(m_shape.getRadius() / 2, m_shape.getRadius() / 2);
+		m_shape.setOrigin(m_shape.getRadius(), m_shape.getRadius() );
 	}
 	sf::CircleShape& getShape()
 	{

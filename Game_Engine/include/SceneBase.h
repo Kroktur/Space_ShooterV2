@@ -64,6 +64,8 @@ public:
 	 * @brief  return the textureCache
 	 * @return textureCache*
 	 */
+	sf::Vector2f getCenter() { return m_Background->getPosition(); }
+	sf::RectangleShape* getBackGround() { return m_Background; }
 	TextureCache* getTexture() { return m_texture; }
 protected:
 	sf::RectangleShape* m_Background;
