@@ -1,4 +1,5 @@
 #include "SceneBase.h"
+#include "IGameObject.h"
 /*****************************************************************//**
  * \file   SceneBase.cpp
  * \brief  Implementation of SceneBase.h
@@ -10,7 +11,7 @@ ISceneBase::ISceneBase(sf::RenderWindow* window, const float& framerate, Texture
 m_Window(window)
 , m_FefreshTime(sf::seconds(1.f /framerate))
 , m_Sceneidx(0)
-,m_Background(new sf::RectangleShape(sf::Vector2f(0, 0)))
+,m_Background(nullptr)
 , m_texture(texture)
 {
 
@@ -41,4 +42,10 @@ sf::RenderWindow* ISceneBase::getWindow()
 {
 	return m_Window;
 }
+
+sf::Vector2f ISceneBase::getBackgroundCenter()
+{ return m_Background->getPosition(); }
+
+sf::Vector2f ISceneBase::getBackgroundSize()
+{ return m_Background->getSize(); }
 

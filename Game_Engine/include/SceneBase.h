@@ -8,6 +8,8 @@
  *********************************************************************/
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
+
+class IShapeSFML;
 #include "TextureCache.h"
 /**
  * @brief  class ISceneBase Interaface of Scene 
@@ -64,11 +66,11 @@ public:
 	 * @brief  return the textureCache
 	 * @return textureCache*
 	 */
-	sf::Vector2f getCenter() { return m_Background->getPosition(); }
-	sf::RectangleShape* getBackGround() { return m_Background; }
+	sf::Vector2f getBackgroundCenter();
+	sf::Vector2f getBackgroundSize();
 	TextureCache* getTexture() { return m_texture; }
 protected:
-	sf::RectangleShape* m_Background;
+	IShapeSFML* m_Background;
 	TextureCache* m_texture;
 private:
 	int m_Sceneidx;

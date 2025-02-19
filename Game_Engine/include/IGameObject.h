@@ -5,12 +5,13 @@
 float convertRadToDeg(const float& rad);
 
 float convertDegToRad(const float& deg);
+class IShapeSFML;
 
 class IGameObject
 {
 public:
-	IGameObject(ISceneBase* scene):m_scene(scene){}
-	virtual ~IGameObject() = default;
+	IGameObject(ISceneBase* scene):m_scene(scene),m_shape(nullptr){}
+	virtual ~IGameObject();
 	/**
 	 * @brief virtual Update
 	 * @param float deltatime
@@ -31,6 +32,7 @@ public:
 	 */
 protected:
 	ISceneBase* m_scene;
+	IShapeSFML* m_shape;
 };
 
 class DestructibleObject : public IGameObject
@@ -120,6 +122,13 @@ class IShapeSFML
 {
 public:
 	virtual ~IShapeSFML() = default;
+	virtual sf::Vector2f getSize() = 0;
+	virtual sf::Vector2f getPosition() = 0;
+	virtual float getangle() = 0;
+	virtual void setPosition(const sf::Vector2f&) = 0;
+	virtual void setSize(const sf::Vector2f&) = 0;
+	virtual void setRotation(const float& angle) = 0;
+	virtual void setTexture(const sf::Texture& texture) = 0;
 };
 class RectangleSFML : public IShapeSFML
 {
@@ -142,6 +151,34 @@ public:
 	sf::RectangleShape& getShape()
 	{
 		return m_shape;
+	}
+	sf::Vector2f getPosition() override
+	{
+		return m_shape.getPosition();
+	}
+	sf::Vector2f getSize() override
+	{
+		return m_shape.getSize();
+	}
+	float getangle() override
+	{
+		return m_shape.getRotation();
+	}
+	void setTexture(const sf::Texture& texture) override
+	{
+		m_shape.setTexture(&texture);
+	}
+	void setPosition(const sf::Vector2f& position) override
+	{
+		m_shape.setPosition(position);
+	}
+	void setSize(const sf::Vector2f& size)override
+	{
+		m_shape.setSize(size);
+	}
+	void setRotation(const float& angle) override
+	{
+		m_shape.setRotation(angle);
 	}
 protected:
 	sf::RectangleShape m_shape;
@@ -167,7 +204,7 @@ public:
 	}
 };
 
-class CircleSFML
+class CircleSFML : public IShapeSFML
 {
 public:
 	CircleSFML(float r, sf::Vector2f position, sf::Vector2f Origin) :m_shape(r)
@@ -188,6 +225,36 @@ public:
 	sf::CircleShape& getShape()
 	{
 		return m_shape;
+	}
+	sf::Vector2f getPosition() override
+	{
+		return m_shape.getPosition();
+	}
+	sf::Vector2f getSize() override
+	{
+		return sf::Vector2f{ m_shape.getRadius() * 2, m_shape.getRadius()* 2 };
+	}
+	float getangle() override
+	{
+		return m_shape.getRotation();
+	}
+	void setTexture(const sf::Texture& texture) override
+	{
+		m_shape.setTexture(&texture);
+	}
+	void setPosition(const sf::Vector2f& position) override
+	{
+		m_shape.setPosition(position);
+	}
+	void setSize(const sf::Vector2f& size)override
+	{
+		if (size.x != size.y)
+			throw std::runtime_error("size must be equal");
+		m_shape.setRadius(size.x / 2);
+	}
+	void setRotation(const float& angle) override
+	{
+		m_shape.setRotation(angle);
 	}
 protected:
 	sf::CircleShape m_shape;
