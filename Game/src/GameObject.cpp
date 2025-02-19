@@ -4,17 +4,23 @@
 FenceShip::FenceShip(ISceneBase* scene, const sf::Vector2f& Center, Ship* ship):
 	IFence(scene, Center)
 	, m_ship(ship)
-	,m_sprite(0,{"FenceTmp.png"})
+	,m_sprite({"FenceTmp.png","FenceTmp2.png"})
 	, IsInBorder(false)
+	, m_elapsedTime(50)
 {
     m_shape = new CircleSFML(m_scene->getBackgroundSize().x / 2, m_center);
-	m_shape->setTexture(m_scene->getTexture()->getTexture(m_sprite.getPath()));
+	m_shape->setTexture(m_scene->getTexture()->getTexture(m_sprite.getCurrentPath()));
 }
 
 void FenceShip::Update(const float& deltatime)
 {
     m_shape->setPosition(m_scene->getBackgroundCenter());
 	m_ship->m_background->setPosition(VerifyLimit());
+	if (m_elapsedTime.AutoActionIsReady())
+	{
+		m_sprite.ChangeToNextPath();
+		m_shape->setTexture(m_scene->getTexture()->getTexture(m_sprite.getCurrentPath()));
+	}
 }
 
 void FenceShip::Render()
@@ -29,22 +35,22 @@ sf::Vector2f FenceShip::VerifyLimit()
     float dx = positionVaisseau.x - centreBackground.x;
     float dy = positionVaisseau.y - centreBackground.y;
     float distance = dx * dx + dy * dy;
-    // be careful the magic value depends on the sprite
-    float radius = (m_shape->getSize().x /2 - m_ship->m_shape->getSize().x - 400) * (m_shape->getSize().x / 2 - m_ship->m_shape->getSize().x - 400);
+	float Border = 2 * (m_shape->getSize().x/30);
+	float malocity = static_cast<MovementInSpace*>(m_ship->m_phisics)->getMaxVelocity();
+    float radius = (m_shape->getSize().x /2 - m_ship->m_shape->getSize().x - Border) * (m_shape->getSize().x / 2 - m_ship->m_shape->getSize().x - Border);
     if (distance > radius ){
         float factor = radius / distance;
         centreBackground.x = positionVaisseau.x - dx * factor;
         centreBackground.y = positionVaisseau.y - dy * factor;
-        //  be careful the magic value depends of the deadly speed according to you
-        if (m_ship->m_velocity[0] > 1000 || m_ship->m_velocity[1] > 1000 || m_ship->m_velocity[2] > 1000 || m_ship->m_velocity[3] > 1000)
+        if (m_ship->m_velocity[0] > malocity/2 || m_ship->m_velocity[1] > malocity / 2 || m_ship->m_velocity[2] > malocity / 2 || m_ship->m_velocity[3] > malocity / 2)
         {
             if (!IsInBorder)
             {
 	            IsInBorder = true;
             	m_ship->ChangeLife(-1);
             }
-        }
-      
+        } 
+		
     }
     if (distance < (radius - (m_ship->m_shape->getSize().x)*(m_ship->m_shape->getSize().x)))
     {
@@ -56,10 +62,10 @@ sf::Vector2f FenceShip::VerifyLimit()
 }
 Cursor::Cursor(ISceneBase* scene) :
     NonDestructibleObject(scene)
-    , m_animate(0, { "Crossair.png","Crossair2.png","Crossair3.png" })
+    , m_animate({ "Crossair.png","Crossair2.png","Crossair3.png" })
 {
     m_shape = new CircleSFML(43, scene);
-    m_shape->setTexture(m_scene->getTexture()->getTexture(m_animate.getPath()));
+    m_shape->setTexture(m_scene->getTexture()->getTexture(m_animate.getCurrentPath()));
 
 }
 

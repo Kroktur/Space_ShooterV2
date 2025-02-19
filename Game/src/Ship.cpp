@@ -5,15 +5,15 @@ Ship::Ship(ISceneBase* scene, IShapeSFML* background) :
 	, m_background(background)
 	, m_velocity({ 0,0,0,0 })
 	, m_angle(0)
-	, m_elapsedTime(0)
-	, m_animate(50, { "SpaceHero.png", "SpaceHero2.png" })
+	, m_elapsedTime(50)
+	, m_animate({ "SpaceHero.png", "SpaceHero2.png" })
 	, m_phisics(new MovementInSpace(2000, 0.15f, 0.30f))
 	, m_boost(false)
 	, dashSpeed(0)
 	, cooldown(5000)
 {
 	m_shape = new SquareSFML(150, scene);
-	m_shape->setTexture(m_scene->getTexture()->getTexture(m_animate.getPath()));
+	m_shape->setTexture(m_scene->getTexture()->getTexture(m_animate.getCurrentPath()));
 }
 
 Ship::~Ship()
@@ -80,15 +80,12 @@ void Ship::Update(const float& deltatime)
 		}
 		dashSpeed += dashSpee1;
 	}
-	m_elapsedTime += deltatime;
-	if (m_animate.changeReady(m_elapsedTime)) {
-		m_elapsedTime = 0.0f;
-		m_animate.NextPath();
-		m_shape->setTexture(m_scene->getTexture()->getTexture(m_animate.getPath()));
-			
+	if (m_elapsedTime.AutoActionIsReady()) {
+		m_animate.ChangeToNextPath();
+		m_shape->setTexture(m_scene->getTexture()->getTexture(m_animate.getCurrentPath()));
 	}
 }
-
+  
 void Ship::Render()
 { m_scene->getWindow()->draw(static_cast<SquareSFML*>(m_shape)->getShape()); }
 

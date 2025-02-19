@@ -38,7 +38,7 @@ protected:
 class DestructibleObject : public IGameObject
 {
 public:
-	DestructibleObject(ISceneBase* scene, const float& life) :IGameObject(scene), m_life(life){}
+	DestructibleObject(ISceneBase* scene, const float& life);
 	void Update(const float& deltatime) override = 0;
 	void ProssesInput(const sf::Event& event) override = 0;
 	void Render() = 0;
@@ -50,11 +50,10 @@ protected:
 class NonDestructibleObject : public IGameObject
 {
 public:
-	NonDestructibleObject(ISceneBase* scene) :IGameObject(scene){}
+	NonDestructibleObject(ISceneBase* scene);
 	void Update(const float& deltatime) override = 0;
 	void ProssesInput(const sf::Event& event) override = 0;
 	void Render() = 0;
-protected:
 };
 class IPhysics
 {
@@ -64,59 +63,25 @@ public:
 class AnimateSprite
 {
 public:
-	AnimateSprite(const int& speed, std::initializer_list<std::string> init) :m_speed(speed), m_curentTexture(0)
-	{
-		for (auto& idx : init)
-		{
-			m_textureContainer.pushBack(idx);
-		}
-	}
-	void add(std::string toBeAdded)
-	{
-		m_textureContainer.pushBack(toBeAdded);
-	}
-	std::string getPath(std::string check)
-	{
-		if (m_textureContainer.Empty())
-			throw std::out_of_range("Vector IS Empty");
-		for (auto& idx : m_textureContainer)
-		{
-			if (idx == check)
-				return idx;
-		}
-		throw std::runtime_error("Imposible to find path");
-	}
-	std::string getPath(const int& idx)
-	{
-		if (m_textureContainer.Empty())
-			throw std::out_of_range("Vector IS Empty");
-		if (idx >= m_textureContainer.Size())
-			throw std::out_of_range("out of range");
-		return m_textureContainer[idx];
-	}
-	std::string getPath()
-	{
-		return m_textureContainer[m_curentTexture];
-	}
-	bool changeReady(const float& timepassed)
-	{
-		if (timepassed >= m_speed)
-			return true;
-		return false;
-	}
-	void NextPath()
-	{
-		if (m_textureContainer.Empty())
-			throw std::out_of_range("Vector IS Empty");
-		if (m_curentTexture == m_textureContainer.Size() - 1)
-			m_curentTexture = 0;
-		else
-			++m_curentTexture;
-	}
+	AnimateSprite(std::initializer_list<std::string> init);
+
+	void add(std::string toBeAdded);
+
+	std::string getPath(const std::string& check);
+
+	std::string getPath(const int& idx);
+
+	std::string getCurrentPath();
+	       
+	void ChangeToNextPath();
+
+	void ChangeToPreviousPath();
+
+	void ChangePath(const int& idx);
+
 private:
 	KT::Vector<std::string> m_textureContainer;
 	int m_curentTexture;
-	int m_speed;
 };
 class IShapeSFML
 {
@@ -133,53 +98,28 @@ public:
 class RectangleSFML : public IShapeSFML
 {
 public:
-	RectangleSFML(float width, float heignt, sf::Vector2f position, sf::Vector2f Origin) :m_shape(sf::Vector2f(width, heignt))
-	{
-		m_shape.setPosition(position);
-		m_shape.setOrigin(Origin);
-	}
-	RectangleSFML(float width, float heignt, sf::Vector2f position) :m_shape(sf::Vector2f(width, heignt))
-	{
-		m_shape.setPosition(position);
-		m_shape.setOrigin(m_shape.getSize().x / 2, m_shape.getSize().y / 2);
-	}
-	RectangleSFML(float width, float heignt, ISceneBase* scene) :m_shape(sf::Vector2f(width, heignt))
-	{
-		m_shape.setPosition(scene->getWindow()->getSize().x / 2, scene->getWindow()->getSize().y / 2);
-		m_shape.setOrigin(m_shape.getSize().x / 2, m_shape.getSize().y / 2);
-	}
-	sf::RectangleShape& getShape()
-	{
-		return m_shape;
-	}
-	sf::Vector2f getPosition() override
-	{
-		return m_shape.getPosition();
-	}
-	sf::Vector2f getSize() override
-	{
-		return m_shape.getSize();
-	}
-	float getangle() override
-	{
-		return m_shape.getRotation();
-	}
-	void setTexture(const sf::Texture& texture) override
-	{
-		m_shape.setTexture(&texture);
-	}
-	void setPosition(const sf::Vector2f& position) override
-	{
-		m_shape.setPosition(position);
-	}
-	void setSize(const sf::Vector2f& size)override
-	{
-		m_shape.setSize(size);
-	}
-	void setRotation(const float& angle) override
-	{
-		m_shape.setRotation(angle);
-	}
+	RectangleSFML(float width, float heignt, sf::Vector2f position, sf::Vector2f Origin);
+
+	RectangleSFML(float width, float heignt, sf::Vector2f position);
+
+	RectangleSFML(float width, float heignt, ISceneBase* scene);
+
+	sf::RectangleShape& getShape();
+
+	sf::Vector2f getPosition() override;
+
+	sf::Vector2f getSize() override;
+
+	float getangle() override;
+
+	void setTexture(const sf::Texture& texture) override;
+
+	void setPosition(const sf::Vector2f& position) override;
+
+	void setSize(const sf::Vector2f& size)override;
+
+	void setRotation(const float& angle) override;
+
 protected:
 	sf::RectangleShape m_shape;
 };
@@ -187,75 +127,94 @@ protected:
 class SquareSFML : public RectangleSFML
 {
 public:
-	SquareSFML(float size, sf::Vector2f position, sf::Vector2f Origin) :RectangleSFML(size, size, position, Origin)
-	{
-		m_shape.setPosition(position);
-		m_shape.setOrigin(Origin);
-	}
-	SquareSFML(float size, sf::Vector2f position) :RectangleSFML(size, size, position)
-	{
-		m_shape.setPosition(position);
-		m_shape.setOrigin(m_shape.getSize().x / 2, m_shape.getSize().y / 2);
-	}
-	SquareSFML(float size, ISceneBase* scene) :RectangleSFML(size, size, scene)
-	{
-		m_shape.setPosition(scene->getWindow()->getSize().x / 2, scene->getWindow()->getSize().y / 2);
-		m_shape.setOrigin(m_shape.getSize().x / 2, m_shape.getSize().y / 2);
-	}
+	SquareSFML(float size, sf::Vector2f position, sf::Vector2f Origin);
+
+	SquareSFML(float size, sf::Vector2f position);
+
+	SquareSFML(float size, ISceneBase* scene);
 };
 
 class CircleSFML : public IShapeSFML
 {
 public:
-	CircleSFML(float r, sf::Vector2f position, sf::Vector2f Origin) :m_shape(r)
-	{
-		m_shape.setPosition(sf::Vector2f(position));
-		m_shape.setOrigin(Origin);
-	}
-	CircleSFML(float r, sf::Vector2f position) :m_shape(r)
-	{
-		m_shape.setPosition(position);
-		m_shape.setOrigin(m_shape.getRadius(), m_shape.getRadius());
-	}
-	CircleSFML(float r, ISceneBase* scene) :m_shape(r)
-	{
-		m_shape.setPosition(scene->getWindow()->getSize().x / 2, scene->getWindow()->getSize().y / 2);
-		m_shape.setOrigin(m_shape.getRadius(), m_shape.getRadius() );
-	}
-	sf::CircleShape& getShape()
-	{
-		return m_shape;
-	}
-	sf::Vector2f getPosition() override
-	{
-		return m_shape.getPosition();
-	}
-	sf::Vector2f getSize() override
-	{
-		return sf::Vector2f{ m_shape.getRadius() * 2, m_shape.getRadius()* 2 };
-	}
-	float getangle() override
-	{
-		return m_shape.getRotation();
-	}
-	void setTexture(const sf::Texture& texture) override
-	{
-		m_shape.setTexture(&texture);
-	}
-	void setPosition(const sf::Vector2f& position) override
-	{
-		m_shape.setPosition(position);
-	}
-	void setSize(const sf::Vector2f& size)override
-	{
-		if (size.x != size.y)
-			throw std::runtime_error("size must be equal");
-		m_shape.setRadius(size.x / 2);
-	}
-	void setRotation(const float& angle) override
-	{
-		m_shape.setRotation(angle);
-	}
+	CircleSFML(float r, sf::Vector2f position, sf::Vector2f Origin);
+
+	CircleSFML(float r, sf::Vector2f position);
+
+	CircleSFML(float r, ISceneBase* scene);
+
+	sf::CircleShape& getShape();
+
+	sf::Vector2f getPosition() override;
+
+	sf::Vector2f getSize() override;
+
+	float getangle() override;
+
+	void setTexture(const sf::Texture& texture) override;
+
+	void setPosition(const sf::Vector2f& position) override;
+
+	void setSize(const sf::Vector2f& size)override;
+
+	void setRotation(const float& angle) override;
+
 protected:
 	sf::CircleShape m_shape;
+};
+class Timer
+{
+public:
+	Timer(const float& timer):m_TotalTimer(timer),m_CurrentTimer(0){}
+	bool AutoActionIsReady()
+	{
+		if (m_CurrentTimer >= m_TotalTimer)
+		{
+			m_CurrentTimer = 0;
+			return true;
+		}
+		++m_CurrentTimer;
+		return false;
+
+
+	}
+	bool ActionIsReady()
+	{
+		if (m_CurrentTimer >= m_TotalTimer) 
+			return true;
+		return false;
+	}
+	void resetTimer()
+	{
+		m_CurrentTimer = 0;
+	}
+	void setNewTimer(const float& timer)
+	{
+		m_TotalTimer = timer;
+	}
+	float getTotalTimer()
+	{
+		return m_TotalTimer;
+	}
+	float getCurrentTimer()
+	{
+		return m_CurrentTimer;
+	}
+	void NextTIck(const float& idx = 1)
+	{
+		
+		m_CurrentTimer +=idx;
+		if (m_CurrentTimer >= m_TotalTimer)
+			m_CurrentTimer = m_TotalTimer;
+	}
+	void PreviousTick(const float& idx = 1)
+	{
+		m_CurrentTimer -= idx;
+		if (m_CurrentTimer <= 0)
+			m_CurrentTimer = 0;
+		
+	}
+private:
+	float m_TotalTimer;
+	float m_CurrentTimer;
 };

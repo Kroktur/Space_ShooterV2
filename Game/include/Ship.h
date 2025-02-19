@@ -21,7 +21,7 @@ private:
 	IShapeSFML* m_background;
 	KT::VectorND<float, 4> m_velocity;
 	float m_angle;
-	float m_elapsedTime;
+	Timer m_elapsedTime;
 	
 	//TODO
 	//Modify this with StateMachin

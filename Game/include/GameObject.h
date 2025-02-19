@@ -35,7 +35,10 @@ public:
 	void ExecutePhysics(KT::VectorND<bool, 4>& isStrafing, KT::VectorND<float, 4>& velocity);
 
 	sf::Vector2f calculPosition( IShapeSFML* entity,ISceneBase* scene, KT::VectorND<float, 4>& velocity);
-
+	float getMaxVelocity()
+	{
+		return m_maxVelocity;
+	}
 private:
 	float m_maxVelocity;
 	float m_acceleration;
@@ -67,5 +70,6 @@ private:
 	sf::Vector2f VerifyLimit();
 	Ship* m_ship;
 	AnimateSprite m_sprite;
+	Timer m_elapsedTime;
 	bool IsInBorder;
 };
