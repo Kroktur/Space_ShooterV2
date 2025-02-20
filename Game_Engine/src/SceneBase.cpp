@@ -44,7 +44,7 @@ sf::RenderWindow* ISceneBase::getWindow()
 }
 
 sf::Vector2f ISceneBase::getBackgroundCenter()
-{ return m_Background->getPosition(); }
+{ return m_Background->getCenter(); }
 
 sf::Vector2f ISceneBase::getBackgroundSize()
 { return m_Background->getSize(); }

@@ -15,6 +15,11 @@ IGameObject::~IGameObject()
 	delete m_shape;
 }
 
+IShapeSFML* IGameObject::getShape()
+{
+	return m_shape;
+}
+
 DestructibleObject::DestructibleObject(ISceneBase* scene, const float& life):IGameObject(scene), m_life(life)
 {}
 
@@ -145,6 +150,18 @@ void RectangleSFML::setRotation(const float& angle)
 	m_shape.setRotation(angle);
 }
 
+void RectangleSFML::setCenter(sf::Vector2f vec)
+{
+	m_shape.setOrigin(vec);
+}
+
+sf::Vector2f RectangleSFML::getCenter()
+{
+	return m_shape.getOrigin();
+}
+
+
+
 SquareSFML::SquareSFML(float size, sf::Vector2f position, sf::Vector2f Origin):RectangleSFML(size, size, position, Origin)
 {
 	m_shape.setPosition(position);
@@ -221,4 +238,13 @@ void CircleSFML::setSize(const sf::Vector2f& size)
 void CircleSFML::setRotation(const float& angle)
 {
 	m_shape.setRotation(angle);
+}
+
+void CircleSFML::setCenter(sf::Vector2f vec )
+{
+	m_shape.setOrigin(vec);
+}
+sf::Vector2f CircleSFML::getCenter()
+{
+	return m_shape.getOrigin();
 }

@@ -1,20 +1,20 @@
 #include "GameObject.h"
 #include "Ship.h"
 #include "cmath"
-FenceShip::FenceShip(ISceneBase* scene, const sf::Vector2f& Center, Ship* ship):
-	IFence(scene, Center)
+FenceShip::FenceShip(ISceneBase* scene, IShapeSFML* game_object, Ship* ship):
+	IFence(scene, game_object)
 	, m_ship(ship)
 	,m_sprite({"FenceTmp.png","FenceTmp2.png"})
 	, IsInBorder(false)
 	, m_elapsedTime(50)
 {
-    m_shape = new CircleSFML(m_scene->getBackgroundSize().x / 2, m_center);
+    m_shape = new CircleSFML(m_ObjectToProtect->getSize().x / 2, m_ObjectToProtect->getCenter());
 	m_shape->setTexture(m_scene->getTexture()->getTexture(m_sprite.getCurrentPath()));
 }
 
 void FenceShip::Update(const float& deltatime)
 {
-    m_shape->setPosition(m_scene->getBackgroundCenter());
+    m_shape->setPosition(m_ObjectToProtect->getPosition());
 	m_ship->m_background->setPosition(VerifyLimit());
 	if (m_elapsedTime.AutoActionIsReady())
 	{
@@ -29,7 +29,7 @@ void FenceShip::Render()
 sf::Vector2f FenceShip::VerifyLimit()
 {
    
-    sf::Vector2f centreBackground = m_ship->m_background->getPosition();
+    sf::Vector2f centreBackground = m_ObjectToProtect->getPosition();
     sf::Vector2f positionVaisseau = m_ship->m_shape->getPosition(); 
 
     float dx = positionVaisseau.x - centreBackground.x;
@@ -60,6 +60,55 @@ sf::Vector2f FenceShip::VerifyLimit()
 
     return centreBackground;
 }
+
+ExternFence::ExternFence(ISceneBase* scene, IShapeSFML* game_object, Position pos,float BorderSize):IFence(scene,game_object), m_diffposition(0,0),m_BorderSize(BorderSize)
+{
+	m_shape = new RectangleSFML(m_ObjectToProtect->getSize().x, m_ObjectToProtect->getSize().y , game_object->getCenter());
+	switch (pos)
+	{
+	case Position::Up:
+		{
+			m_shape->setSize(sf::Vector2f(m_ObjectToProtect->getSize().x, m_BorderSize));
+			m_diffposition.x = 0;
+			m_diffposition.y = -(m_ObjectToProtect->getSize().y/2 - m_BorderSize/2);
+			break;
+		}
+	case Position::Down:
+		{
+			m_shape->setSize(sf::Vector2f(m_ObjectToProtect->getSize().x, m_BorderSize));
+			m_diffposition.x = 0;
+			m_diffposition.y = m_ObjectToProtect->getSize().y / 2 + m_BorderSize/2;
+			break;
+		}
+	case Position::Left:
+	{
+		m_shape->setSize(sf::Vector2f(m_BorderSize, m_ObjectToProtect->getSize().x));
+		m_diffposition.x = -(m_ObjectToProtect->getSize().y / 2 - m_BorderSize/2);
+		m_diffposition.y = 0;
+		break;
+	}
+	case Position::Right:
+	{
+		m_shape->setSize(sf::Vector2f(m_BorderSize, m_ObjectToProtect->getSize().x));
+		m_diffposition.x = +(m_ObjectToProtect->getSize().y / 2 - m_BorderSize/2);
+		m_diffposition.y = 0;
+		break;
+	}
+
+	}
+	m_shape->setCenter(sf::Vector2f(m_shape->getSize().x / 2, m_shape->getSize().y / 2));
+}
+
+void ExternFence::Update(const float& deltatime)
+{
+	m_shape->setPosition(sf::Vector2f(m_ObjectToProtect->getPosition().x + m_diffposition.x , m_ObjectToProtect->getPosition().y + m_diffposition.y));
+}
+
+void ExternFence::Render()
+{
+	m_scene->getWindow()->draw(static_cast<RectangleSFML*>(m_shape)->getShape());
+}
+
 Cursor::Cursor(ISceneBase* scene) :
     NonDestructibleObject(scene)
     , m_animate({ "Crossair.png","Crossair2.png","Crossair3.png" })
@@ -82,7 +131,7 @@ void Cursor::Render()
 {
 	m_scene->getWindow()->draw(static_cast<SquareSFML*>(m_shape)->getShape());
 }
-IFence::IFence(ISceneBase* scene, const sf::Vector2f& Center) :NonDestructibleObject(scene), m_center(Center) {}
+IFence::IFence(ISceneBase* scene, IShapeSFML* object) :NonDestructibleObject(scene), m_ObjectToProtect(object) {}
 
 MovementInSpace::MovementInSpace(const float& maxVelority, const float& acceleratrion, const float& deceleration) :m_maxVelocity(maxVelority), m_acceleration(acceleratrion), m_deceleration(deceleration) {}
 

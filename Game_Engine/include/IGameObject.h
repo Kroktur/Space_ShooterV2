@@ -30,6 +30,8 @@ public:
 	 * @brief set The Scene Idx
 	 * @param idx
 	 */
+	IShapeSFML* getShape();
+
 protected:
 	ISceneBase* m_scene;
 	IShapeSFML* m_shape;
@@ -94,6 +96,8 @@ public:
 	virtual void setSize(const sf::Vector2f&) = 0;
 	virtual void setRotation(const float& angle) = 0;
 	virtual void setTexture(const sf::Texture& texture) = 0;
+	virtual void setCenter(sf::Vector2f) = 0;
+	virtual sf::Vector2f getCenter() = 0;
 };
 class RectangleSFML : public IShapeSFML
 {
@@ -103,8 +107,6 @@ public:
 	RectangleSFML(float width, float heignt, sf::Vector2f position);
 
 	RectangleSFML(float width, float heignt, ISceneBase* scene);
-
-	sf::RectangleShape& getShape();
 
 	sf::Vector2f getPosition() override;
 
@@ -119,6 +121,11 @@ public:
 	void setSize(const sf::Vector2f& size)override;
 
 	void setRotation(const float& angle) override;
+
+	void setCenter(sf::Vector2f) override;
+	 sf::Vector2f getCenter() override;
+
+	sf::RectangleShape& getShape();
 
 protected:
 	sf::RectangleShape m_shape;
@@ -143,8 +150,6 @@ public:
 
 	CircleSFML(float r, ISceneBase* scene);
 
-	sf::CircleShape& getShape();
-
 	sf::Vector2f getPosition() override;
 
 	sf::Vector2f getSize() override;
@@ -158,6 +163,11 @@ public:
 	void setSize(const sf::Vector2f& size)override;
 
 	void setRotation(const float& angle) override;
+
+	void setCenter(sf::Vector2f) override;
+	sf::Vector2f getCenter() override;
+
+	sf::CircleShape& getShape();
 
 protected:
 	sf::CircleShape m_shape;

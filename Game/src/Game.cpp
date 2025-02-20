@@ -13,7 +13,15 @@ Game::Game(sf::RenderWindow* window, const float& framerate, TextureCache* textu
 	m_Background = new SquareSFML(10000,sf::Vector2f(0,0));
 	m_Background->setTexture(m_texture->getTexture("galaxie4.png"));
 	m_object.pushBack(new Ship(this, m_Background));
-	m_object.pushBack(new FenceShip(this, m_Background->getPosition(), static_cast<Ship*>(m_object[0])));
+	m_object.pushBack(new FenceShip(this, m_Background, static_cast<Ship*>(m_object[0])));
+	m_object.pushBack(new ExternFence(this, m_Background, Position::Down, 5));
+	m_object.pushBack(new ExternFence(this, m_Background, Position::Up, 5));
+	m_object.pushBack(new ExternFence(this, m_Background, Position::Left , 5));
+	m_object.pushBack(new ExternFence(this, m_Background, Position::Right , 5));
+	m_object.pushBack(new ExternFence(this, m_object[0]->getShape(), Position::Down, 5));
+	m_object.pushBack(new ExternFence(this, m_object[0]->getShape(), Position::Up, 5));
+	m_object.pushBack(new ExternFence(this, m_object[0]->getShape(), Position::Left, 5));
+	m_object.pushBack(new ExternFence(this, m_object[0]->getShape(), Position::Right, 5));
 	getWindow()->setMouseCursorVisible(false);
 }
 

@@ -50,18 +50,17 @@ class IFence : public NonDestructibleObject
 {
 public:
 
-	IFence(ISceneBase* scene, const sf::Vector2f& Center);
+	IFence(ISceneBase* scene , IShapeSFML* object);
 	void ProssesInput(const sf::Event& event) override = 0;
 	void Update(const float& deltatime) override = 0;
 	void Render() override = 0;
 protected:
-	sf::Vector2f m_center;
+	IShapeSFML* m_ObjectToProtect;
 };
 class FenceShip : public IFence
 {
 public:
-	friend Ship;
-	FenceShip(ISceneBase* scene, const sf::Vector2f& Center, Ship* ship);
+	FenceShip(ISceneBase* scene, IShapeSFML* game_object, Ship* ship);
 	void ProssesInput(const sf::Event& event) override{}
 	void Update(const float& deltatime) override;
 	void Render() override;
@@ -72,4 +71,22 @@ private:
 	AnimateSprite m_sprite;
 	Timer m_elapsedTime;
 	bool IsInBorder;
+};
+enum class Position 
+{
+	Left
+	,Right
+	,Up
+	,Down
+};
+class ExternFence : public IFence
+{
+public:
+	ExternFence(ISceneBase* scene, IShapeSFML* game_object, Position pos, float BorderSize);
+	void ProssesInput(const sf::Event& event) override {}
+	void Update(const float& deltatime) override;
+	void Render() override;
+private:
+	sf::Vector2f m_diffposition;
+	float m_BorderSize;
 };
