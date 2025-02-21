@@ -9,12 +9,14 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
+#include "IGameObject.h"
+
 class IShapeSFML;
 #include "TextureCache.h"
 /**
  * @brief  class ISceneBase Interaface of Scene 
  */
-class ISceneBase
+class ISceneBase : public IGameObjectContainer
 {
 public:
 	/**

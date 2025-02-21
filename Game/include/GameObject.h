@@ -18,7 +18,7 @@ enum trust
 class Cursor : public NonDestructibleObject
 {
 public:
-	Cursor(ISceneBase* scene);
+	Cursor(IGameObjectContainer* scene);
 	void ProssesInput(const sf::Event& event) override;
 
 	void Update(const float& deltatime) override;
@@ -51,7 +51,7 @@ class IFence : public NonDestructibleObject
 {
 public:
 
-	IFence(ISceneBase* scene , IShapeSFML* object);
+	IFence(IGameObjectContainer* scene , IShapeSFML* object);
 	void ProssesInput(const sf::Event& event) override = 0;
 	void Update(const float& deltatime) override = 0;
 	void Render() override = 0;
@@ -61,7 +61,7 @@ protected:
 class FenceShip : public IFence
 {
 public:
-	FenceShip(ISceneBase* scene, IShapeSFML* game_object, Ship* ship);
+	FenceShip(IGameObjectContainer* scene, IShapeSFML* game_object, Ship* ship);
 	void ProssesInput(const sf::Event& event) override{}
 	void Update(const float& deltatime) override;
 	void Render() override;
@@ -83,7 +83,7 @@ enum class Position
 class ExternFence : public IFence
 {
 public:
-	ExternFence(ISceneBase* scene, IShapeSFML* game_object, Position pos, float BorderSize);
+	ExternFence(IGameObjectContainer* scene, IShapeSFML* game_object, Position pos, float BorderSize);
 	void ProssesInput(const sf::Event& event) override {}
 	void Update(const float& deltatime) override;
 	void Render() override;

@@ -40,6 +40,10 @@ public:
 	 *@brief Render Impl
 	 */
 	virtual void Render() override;
+	ISceneBase* getScene() override
+	{
+		return this;
+	}
 
 private:
 	sf::RectangleShape m_Ship;

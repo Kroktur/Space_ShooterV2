@@ -1,6 +1,6 @@
 #include "Ship.h"
 
-Ship::Ship(ISceneBase* scene, IShapeSFML* background) :
+Ship::Ship(IGameObjectContainer* scene, IShapeSFML* background) :
 	DestructibleObject(scene, 10)
 	, m_background(background)
 	, m_velocity({ 0,0,0,0 })
@@ -12,8 +12,8 @@ Ship::Ship(ISceneBase* scene, IShapeSFML* background) :
 	, dashSpeed(0)
 	, cooldown(5000)
 {
-	m_shape = new SquareSFML(150, scene);
-	m_shape->setTexture(m_scene->getTexture()->getTexture(m_animate.getCurrentPath()));
+	m_shape = new SquareSFML(150, m_owner->getScene());
+	m_shape->setTexture(m_owner->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
 }
 
 Ship::~Ship()
@@ -61,7 +61,7 @@ void Ship::physics()
 void Ship::Update(const float& deltatime)
 {
 	m_shape->setRotation(m_angle);
-	m_background->setPosition(static_cast<MovementInSpace*>(m_phisics)->calculPosition(m_background, m_scene, m_velocity));
+	m_background->setPosition(static_cast<MovementInSpace*>(m_phisics)->calculPosition(m_background, m_owner->getScene(), m_velocity));
 	if (m_boost)
 	{
 		
@@ -82,16 +82,17 @@ void Ship::Update(const float& deltatime)
 	}
 	if (m_elapsedTime.AutoActionIsReady()) {
 		m_animate.ChangeToNextPath();
-		m_shape->setTexture(m_scene->getTexture()->getTexture(m_animate.getCurrentPath()));
+		m_shape->setTexture(m_owner->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
 	}
 }
   
 void Ship::Render()
-{ m_scene->getWindow()->draw(static_cast<SquareSFML*>(m_shape)->getShape()); }
+{
+	m_owner->getScene()->getWindow()->draw(static_cast<SquareSFML*>(m_shape)->getShape()); }
 
 float Ship::anglecalcul()
 {
-	sf::Vector2i mousePos = sf::Mouse::getPosition(*m_scene->getWindow());
+	sf::Vector2i mousePos = sf::Mouse::getPosition(*m_owner->getScene()->getWindow());
 	sf::Vector2f shipPos = m_shape->getPosition();
 	float deltaX = mousePos.x - shipPos.x;
 	float deltaY = mousePos.y - shipPos.y;
