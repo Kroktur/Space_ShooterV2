@@ -5,7 +5,7 @@ class Ship : public DestructibleObject
 {
 public:
 	friend FenceShip;
-	Ship(IGameObjectContainer* scene, IShapeSFML* background);
+	Ship(ISceneBase* scene, IShapeSFML* background);
 	~Ship();
 
 	void ProssesInput(const sf::Event& event) override;
@@ -22,7 +22,7 @@ private:
 	KT::VectorND<float, 4> m_velocity;
 	float m_angle;
 	Timer m_elapsedTime;
-	
+
 	//TODO
 	//Modify this with StateMachin
 	float cooldown;

@@ -1,31 +1,32 @@
 #include "IGameObject.h"
 #include "IShape.h"
-#include "SceneBase.h"
 float convertRadToDeg(const float& rad)
 {
-	return (180 * rad) / 3.14159f;
+    return (180 * rad) / 3.14159f;
 }
 
 float convertDegToRad(const float& deg)
 {
-	return (deg * 3.14159f) / 180;
+    return (deg * 3.14159f) / 180;
 }
 
-//IGameObject::~IGameObject()
-//{
-//	delete m_shape;
-//}
+IGameObject::~IGameObject()
+{
+    delete m_shape;
+}
 
 IShapeSFML* IGameObject::getShape()
 {
-	return m_shape;
+    return m_shape;
 }
 
-DestructibleObject::DestructibleObject(IGameObjectContainer* scene, const float& life):IGameObject(scene), m_life(life)
-{}
+DestructibleObject::DestructibleObject(ISceneBase* scene, const float& life) :IGameObject(scene), m_life(life)
+{
+}
 
-NonDestructibleObject::NonDestructibleObject(IGameObjectContainer* scene):IGameObject(scene)
-{}
+NonDestructibleObject::NonDestructibleObject(ISceneBase* scene) :IGameObject(scene)
+{
+}
 
 
 
@@ -36,7 +37,7 @@ IGameObjectContainer::~IGameObjectContainer()
         delete gameObject;
 }
 
-void IGameObjectContainer::_addObject(IGameObject* go)
+void IGameObjectContainer::_addObject(GameObject* go)
 {
     m_toBeAddedGameObjects.pushBack(go);
 }
@@ -48,7 +49,7 @@ struct RemoveNonExisitingGameObject : public std::runtime_error
     }
 };
 
-void IGameObjectContainer::_removeObject(IGameObject* go)
+void IGameObjectContainer::_removeObject(GameObject* go)
 {
     auto it = std::find(m_allGameObjects.begin(), m_allGameObjects.end(), go);
     if (it == m_allGameObjects.end()) // No elem found.
@@ -57,7 +58,7 @@ void IGameObjectContainer::_removeObject(IGameObject* go)
     m_allGameObjects.erase(it);
 }
 
-void IGameObjectContainer::_toBeRemoveObject(IGameObject* go)
+void IGameObjectContainer::_toBeRemoveObject(GameObject* go)
 {
     auto it = std::find(m_toBeRemovedGameObjects.begin(), m_toBeRemovedGameObjects.end(), go);
 
@@ -75,7 +76,7 @@ void IGameObjectContainer::_cleanObject()
     m_toBeRemovedGameObjects.clear();
 }
 
-void IGameObjectContainer::_deferedAddObject(IGameObject* go)
+void IGameObjectContainer::_deferedAddObject(GameObject* go)
 {
     m_allGameObjects.pushBack(go);
 }
@@ -91,19 +92,19 @@ void IGameObjectContainer::_deferedAddObjects()
 
 
 
-IGameObject::IGameObject(IGameObjectContainer* owner) : m_owner(owner), m_shape(nullptr)
+GameObject::GameObject(IGameObjectContainer& owner) : m_owner(owner)
 {
-    m_owner->_addObject(this);
+    m_owner._addObject(this);
 }
 
-IGameObject::~IGameObject()
+GameObject::~GameObject()
 {
-    m_owner->_removeObject(this);
+    m_owner._removeObject(this);
 }
 
-void IGameObject::destroy()
+void GameObject::destroy()
 {
-    m_owner->_toBeRemoveObject(this);
+    m_owner._toBeRemoveObject(this);
 }
 
 void IGameObjectCompound::Update(const float& deltatime)
@@ -123,5 +124,4 @@ void IGameObjectCompound::Render()
     for (auto& gameObject : m_allGameObjects)
         gameObject->Render();
 }
-
 

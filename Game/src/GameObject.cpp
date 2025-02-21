@@ -1,97 +1,98 @@
 #include "GameObject.h"
 #include "Ship.h"
 #include "cmath"
-FenceShip::FenceShip(IGameObjectContainer* scene, IShapeSFML* game_object, Ship* ship):
+FenceShip::FenceShip(ISceneBase* scene, IShapeSFML* game_object, Ship* ship) :
 	IFence(scene, game_object)
 	, m_ship(ship)
-	,m_sprite({"FenceTmp.png","FenceTmp2.png"})
+	, m_sprite({ "FenceTmp.png","FenceTmp2.png" })
 	, IsInBorder(false)
 	, m_elapsedTime(50)
 {
-    m_shape = new CircleSFML(m_ObjectToProtect->getSize().x / 2, m_ObjectToProtect->getCenter());
-	m_shape->setTexture(m_owner->getScene()->getTexture()->getTexture(m_sprite.getCurrentPath()));
+	m_shape = new CircleSFML(m_ObjectToProtect->getSize().x / 2, m_ObjectToProtect->getCenter());
+	m_shape->setTexture(m_scene->getTexture()->getTexture(m_sprite.getCurrentPath()));
 }
 
 void FenceShip::Update(const float& deltatime)
 {
-    m_shape->setPosition(m_ObjectToProtect->getPosition());
+	m_shape->setPosition(m_ObjectToProtect->getPosition());
 	m_ship->m_background->setPosition(VerifyLimit());
 	if (m_elapsedTime.AutoActionIsReady())
 	{
 		m_sprite.ChangeToNextPath();
-		m_shape->setTexture(m_owner->getScene()->getTexture()->getTexture(m_sprite.getCurrentPath()));
+		m_shape->setTexture(m_scene->getTexture()->getTexture(m_sprite.getCurrentPath()));
 	}
 }
 
 void FenceShip::Render()
 {
-	m_owner->getScene()->getWindow()->draw(static_cast<CircleSFML*>(m_shape)->getShape()); }
+	m_scene->getWindow()->draw(static_cast<CircleSFML*>(m_shape)->getShape());
+}
 
 sf::Vector2f FenceShip::VerifyLimit()
 {
-   
-    sf::Vector2f centreBackground = m_ObjectToProtect->getPosition();
-    sf::Vector2f positionVaisseau = m_ship->m_shape->getPosition(); 
 
-    float dx = positionVaisseau.x - centreBackground.x;
-    float dy = positionVaisseau.y - centreBackground.y;
-    float distance = dx * dx + dy * dy;
-	float Border = 2 * (m_shape->getSize().x/30);
+	sf::Vector2f centreBackground = m_ObjectToProtect->getPosition();
+	sf::Vector2f positionVaisseau = m_ship->m_shape->getPosition();
+
+	float dx = positionVaisseau.x - centreBackground.x;
+	float dy = positionVaisseau.y - centreBackground.y;
+	float distance = dx * dx + dy * dy;
+	float Border = 2 * (m_shape->getSize().x / 30);
 	float malocity = static_cast<MovementInSpace*>(m_ship->m_phisics)->getMaxVelocity();
-    float radius = (m_shape->getSize().x /2 - m_ship->m_shape->getSize().x - Border) * (m_shape->getSize().x / 2 - m_ship->m_shape->getSize().x - Border);
-    if (distance > radius ){
-        float factor = radius / distance;
-        centreBackground.x = positionVaisseau.x - dx * factor;
-        centreBackground.y = positionVaisseau.y - dy * factor;
-        if (m_ship->m_velocity[0] > malocity/2 || m_ship->m_velocity[1] > malocity / 2 || m_ship->m_velocity[2] > malocity / 2 || m_ship->m_velocity[3] > malocity / 2)
-        {
-            if (!IsInBorder)
-            {
-	            IsInBorder = true;
-            	m_ship->ChangeLife(-1);
-            }
-        } 
-		
-    }
-    if (distance < (radius - (m_ship->m_shape->getSize().x)*(m_ship->m_shape->getSize().x)))
-    {
-        IsInBorder = false;
-    }
+	float radius = (m_shape->getSize().x / 2 - m_ship->m_shape->getSize().x - Border) * (m_shape->getSize().x / 2 - m_ship->m_shape->getSize().x - Border);
+	if (distance > radius) {
+		float factor = radius / distance;
+		centreBackground.x = positionVaisseau.x - dx * factor;
+		centreBackground.y = positionVaisseau.y - dy * factor;
+		if (m_ship->m_velocity[0] > malocity / 2 || m_ship->m_velocity[1] > malocity / 2 || m_ship->m_velocity[2] > malocity / 2 || m_ship->m_velocity[3] > malocity / 2)
+		{
+			if (!IsInBorder)
+			{
+				IsInBorder = true;
+				m_ship->ChangeLife(-1);
+			}
+		}
+
+	}
+	if (distance < (radius - (m_ship->m_shape->getSize().x) * (m_ship->m_shape->getSize().x)))
+	{
+		IsInBorder = false;
+	}
 
 
-    return centreBackground;
+	return centreBackground;
 }
 
-ExternFence::ExternFence(IGameObjectContainer* scene, IShapeSFML* game_object, Position pos,float BorderSize):IFence(scene,game_object), m_diffposition(0,0),m_BorderSize(BorderSize)
+ExternFence::ExternFence(ISceneBase* scene, IShapeSFML* game_object, Position pos, float BorderSize) :IFence(scene, game_object), m_diffposition(0, 0), m_BorderSize(BorderSize)
 {
-	m_shape = new RectangleSFML(m_ObjectToProtect->getSize().x, m_ObjectToProtect->getSize().y , game_object->getCenter());
+	m_shape = new RectangleSFML(m_ObjectToProtect->getSize().x, m_ObjectToProtect->getSize().y, game_object->getCenter());
 	switch (pos)
 	{
 	case Position::Up:
-		{
-			m_shape->setSize(sf::Vector2f(m_ObjectToProtect->getSize().x, m_BorderSize));
-			m_diffposition.x = 0;
-			m_diffposition.y = -(m_ObjectToProtect->getSize().y/2 - m_BorderSize/2);
-			break;
-		}
+	{
+		m_shape->setSize(sf::Vector2f(m_ObjectToProtect->getSize().x, m_BorderSize));
+		m_diffposition.x = 0;
+		m_diffposition.y = -(m_ObjectToProtect->getSize().y / 2 - m_BorderSize / 2);
+		break;
+	}
 	case Position::Down:
-		{
-			m_shape->setSize(sf::Vector2f(m_ObjectToProtect->getSize().x, m_BorderSize));
-			m_diffposition.x = 0;
-			m_diffposition.y = m_ObjectToProtect->getSize().y / 2 + m_BorderSize/2;
-			break;
-		}
+	{
+		m_shape->setSize(sf::Vector2f(m_ObjectToProtect->getSize().x, m_BorderSize));
+		m_diffposition.x = 0;
+		m_diffposition.y = m_ObjectToProtect->getSize().y / 2 + m_BorderSize / 2;
+		break;
+	}
 	case Position::Left:
 	{
 		m_shape->setSize(sf::Vector2f(m_BorderSize, m_ObjectToProtect->getSize().x));
-		m_diffposition.x = -(m_ObjectToProtect->getSize().y / 2 - m_BorderSize/2);
+		m_diffposition.x = -(m_ObjectToProtect->getSize().y / 2 - m_BorderSize / 2);
 		m_diffposition.y = 0;
 		break;
 	}
 	case Position::Right:
 	{
 		m_shape->setSize(sf::Vector2f(m_BorderSize, m_ObjectToProtect->getSize().x));
-		m_diffposition.x = +(m_ObjectToProtect->getSize().y / 2 - m_BorderSize/2);
+		m_diffposition.x = +(m_ObjectToProtect->getSize().y / 2 - m_BorderSize / 2);
 		m_diffposition.y = 0;
 		break;
 	}
@@ -102,37 +103,38 @@ ExternFence::ExternFence(IGameObjectContainer* scene, IShapeSFML* game_object, P
 
 void ExternFence::Update(const float& deltatime)
 {
-	m_shape->setPosition(sf::Vector2f(m_ObjectToProtect->getPosition().x + m_diffposition.x , m_ObjectToProtect->getPosition().y + m_diffposition.y));
+	m_shape->setPosition(sf::Vector2f(m_ObjectToProtect->getPosition().x + m_diffposition.x, m_ObjectToProtect->getPosition().y + m_diffposition.y));
 }
 
 void ExternFence::Render()
 {
-	m_owner->getScene()->getWindow()->draw(static_cast<RectangleSFML*>(m_shape)->getShape());
+	m_scene->getWindow()->draw(static_cast<RectangleSFML*>(m_shape)->getShape());
 }
 
-Cursor::Cursor(IGameObjectContainer* scene) :
-    NonDestructibleObject(scene)
-    , m_animate({ "Crossair.png","Crossair2.png","Crossair3.png" })
+Cursor::Cursor(ISceneBase* scene) :
+	NonDestructibleObject(scene)
+	, m_animate({ "Crossair.png","Crossair2.png","Crossair3.png" })
 {
-    m_shape = new CircleSFML(43, m_owner->getScene());
-    m_shape->setTexture(m_owner->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
+	m_shape = new CircleSFML(43, scene);
+	m_shape->setTexture(m_scene->getTexture()->getTexture(m_animate.getCurrentPath()));
 
 }
 
 void Cursor::ProssesInput(const sf::Event& event)
-{}
+{
+}
 
 void Cursor::Update(const float& deltatime)
 {
-	sf::Vector2i mousePos = sf::Mouse::getPosition(*m_owner->getScene()->getWindow());
-	m_shape->setPosition(sf::Vector2f( mousePos.x,mousePos.y));
+	sf::Vector2i mousePos = sf::Mouse::getPosition(*m_scene->getWindow());
+	m_shape->setPosition(sf::Vector2f(mousePos.x, mousePos.y));
 }
 
 void Cursor::Render()
 {
-	m_owner->getScene()->getWindow()->draw(static_cast<SquareSFML*>(m_shape)->getShape());
+	m_scene->getWindow()->draw(static_cast<SquareSFML*>(m_shape)->getShape());
 }
-IFence::IFence(IGameObjectContainer* scene, IShapeSFML* object) :NonDestructibleObject(scene), m_ObjectToProtect(object) {}
+IFence::IFence(ISceneBase* scene, IShapeSFML* object) :NonDestructibleObject(scene), m_ObjectToProtect(object) {}
 
 MovementInSpace::MovementInSpace(const float& maxVelority, const float& acceleratrion, const float& deceleration) :m_maxVelocity(maxVelority), m_acceleration(acceleratrion), m_deceleration(deceleration) {}
 

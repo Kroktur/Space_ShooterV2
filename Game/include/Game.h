@@ -17,9 +17,9 @@ class Game : public ISceneBase
 public:
 	/**
 	 * @brief Game Constructor
-	 * @param sf::RenderWindow* window 
-	 * @param float framerate 
-	 * @param TextureCache* texture 
+	 * @param sf::RenderWindow* window
+	 * @param float framerate
+	 * @param TextureCache* texture
 	 */
 	Game(sf::RenderWindow* window, const float& framerate, TextureCache* texture);
 	/**
@@ -28,22 +28,18 @@ public:
 	virtual ~Game()override = default;
 	/**
 	 * @brief Update Imple
-	 * @param float deltatime 
+	 * @param float deltatime
 	 */
 	virtual void Update(const float& deltatime) override;
 	/**
 	 * @brief ProssesInput Impl
-	 * @param sf::event 
+	 * @param sf::event
 	 */
 	virtual void ProssesInput(const sf::Event& event)override;
 	/**
 	 *@brief Render Impl
 	 */
 	virtual void Render() override;
-	ISceneBase* getScene() override
-	{
-		return this;
-	}
 
 private:
 	sf::RectangleShape m_Ship;
@@ -51,4 +47,3 @@ private:
 	KT::Vector<IGameObject*> m_object;
 	Cursor cursor;
 };
-
