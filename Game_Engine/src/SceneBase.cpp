@@ -1,5 +1,6 @@
 #include "SceneBase.h"
 #include "IGameObject.h"
+#include"IShape.h"
 /*****************************************************************//**
  * \file   SceneBase.cpp
  * \brief  Implementation of SceneBase.h

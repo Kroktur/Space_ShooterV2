@@ -4,6 +4,7 @@
 #include "KT_Math_Algorithm.h"
 #include "KT_Array.h"
 #include "KT_VectorND.h"
+#include "IShape.h"
 class Ship;
 enum trust
 {

@@ -18,10 +18,6 @@ Game::Game(sf::RenderWindow* window, const float& framerate, TextureCache* textu
 	m_object.pushBack(new ExternFence(this, m_Background, Position::Up, 5));
 	m_object.pushBack(new ExternFence(this, m_Background, Position::Left , 5));
 	m_object.pushBack(new ExternFence(this, m_Background, Position::Right , 5));
-	m_object.pushBack(new ExternFence(this, m_object[0]->getShape(), Position::Down, 5));
-	m_object.pushBack(new ExternFence(this, m_object[0]->getShape(), Position::Up, 5));
-	m_object.pushBack(new ExternFence(this, m_object[0]->getShape(), Position::Left, 5));
-	m_object.pushBack(new ExternFence(this, m_object[0]->getShape(), Position::Right, 5));
 	getWindow()->setMouseCursorVisible(false);
 }
 

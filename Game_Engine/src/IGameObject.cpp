@@ -1,5 +1,5 @@
 #include "IGameObject.h"
-
+#include "IShape.h"
 float convertRadToDeg(const float& rad)
 {
 	return (180 * rad) / 3.14159f;
@@ -26,225 +26,101 @@ DestructibleObject::DestructibleObject(ISceneBase* scene, const float& life):IGa
 NonDestructibleObject::NonDestructibleObject(ISceneBase* scene):IGameObject(scene)
 {}
 
-AnimateSprite::AnimateSprite( std::initializer_list<std::string> init): m_curentTexture(0)
+
+
+IGameObjectContainer::~IGameObjectContainer()
 {
-	for (auto& idx : init)
-	{
-		m_textureContainer.pushBack(idx);
-	}
+    auto allGameObjects = m_allGameObjects;
+    for (auto& gameObject : allGameObjects)
+        delete gameObject;
 }
 
-void AnimateSprite::add(std::string toBeAdded)
+void IGameObjectContainer::_addObject(GameObject* go)
 {
-	m_textureContainer.pushBack(toBeAdded);
+    m_toBeAddedGameObjects.pushBack(go);
 }
 
-std::string AnimateSprite::getPath(const std::string& check)
+struct RemoveNonExisitingGameObject : public std::runtime_error
 {
-	if (m_textureContainer.Empty())
-		throw std::out_of_range("Vector IS Empty");
-	for (auto& idx : m_textureContainer)
-	{
-		if (idx == check)
-			return idx;
-	}
-	throw std::runtime_error("Imposible to find path");
+    RemoveNonExisitingGameObject() : std::runtime_error("Try to remove non existing Game Object.")
+    {
+    }
+};
+
+void IGameObjectContainer::_removeObject(GameObject* go)
+{
+    auto it = std::find(m_allGameObjects.begin(), m_allGameObjects.end(), go);
+    if (it == m_allGameObjects.end()) // No elem found.
+        throw RemoveNonExisitingGameObject();
+
+    m_allGameObjects.erase(it);
 }
 
-std::string AnimateSprite::getPath(const int& idx)
+void IGameObjectContainer::_toBeRemoveObject(GameObject* go)
 {
-	if (m_textureContainer.Empty())
-		throw std::out_of_range("Vector IS Empty");
-	if (idx >= m_textureContainer.Size())
-		throw std::out_of_range("out of range");
-	return m_textureContainer[idx];
+    auto it = std::find(m_toBeRemovedGameObjects.begin(), m_toBeRemovedGameObjects.end(), go);
+
+    if (it != m_toBeRemovedGameObjects.end())
+        return;
+
+    m_toBeRemovedGameObjects.pushBack(go);
 }
 
-std::string AnimateSprite::getCurrentPath()
+void IGameObjectContainer::_cleanObject()
 {
-	return m_textureContainer[m_curentTexture];
+    for (auto& go : m_toBeRemovedGameObjects)
+        delete go;
+
+    m_toBeRemovedGameObjects.clear();
 }
 
-void AnimateSprite::ChangeToNextPath()
+void IGameObjectContainer::_deferedAddObject(GameObject* go)
 {
-	if (m_textureContainer.Empty())
-		throw std::out_of_range("Vector IS Empty");
-	if (m_curentTexture == m_textureContainer.Size() - 1)
-		m_curentTexture = 0;
-	else
-		++m_curentTexture;
+    m_allGameObjects.pushBack(go);
 }
 
-void AnimateSprite::ChangePath(const int& idx)
+void IGameObjectContainer::_deferedAddObjects()
 {
-	if (idx < 0 || idx >= m_textureContainer.Size())
-		throw std::runtime_error("out of range");
-	m_curentTexture = idx;
- }
+    for (auto& go : m_toBeAddedGameObjects)
+        _deferedAddObject(go);
 
-void AnimateSprite::ChangeToPreviousPath()
-{
-	if (m_textureContainer.Empty())
-		throw std::out_of_range("Vector IS Empty");
-	if (m_curentTexture == 0)
-		m_curentTexture = m_textureContainer.Size() - 1;
-	else
-		--m_curentTexture;
-}
-
-RectangleSFML::RectangleSFML(float width, float heignt, sf::Vector2f position, sf::Vector2f Origin):m_shape(sf::Vector2f(width, heignt))
-{
-	m_shape.setPosition(position);
-	m_shape.setOrigin(Origin);
-}
-
-RectangleSFML::RectangleSFML(float width, float heignt, sf::Vector2f position):m_shape(sf::Vector2f(width, heignt))
-{
-	m_shape.setPosition(position);
-	m_shape.setOrigin(m_shape.getSize().x / 2, m_shape.getSize().y / 2);
-}
-
-RectangleSFML::RectangleSFML(float width, float heignt, ISceneBase* scene):m_shape(sf::Vector2f(width, heignt))
-{
-	m_shape.setPosition(scene->getWindow()->getSize().x / 2, scene->getWindow()->getSize().y / 2);
-	m_shape.setOrigin(m_shape.getSize().x / 2, m_shape.getSize().y / 2);
-}
-
-sf::RectangleShape& RectangleSFML::getShape()
-{
-	return m_shape;
-}
-
-sf::Vector2f RectangleSFML::getPosition()
-{
-	return m_shape.getPosition();
-}
-
-sf::Vector2f RectangleSFML::getSize()
-{
-	return m_shape.getSize();
-}
-
-float RectangleSFML::getangle()
-{
-	return m_shape.getRotation();
-}
-
-void RectangleSFML::setTexture(const sf::Texture& texture)
-{
-	m_shape.setTexture(&texture);
-}
-
-void RectangleSFML::setPosition(const sf::Vector2f& position)
-{
-	m_shape.setPosition(position);
-}
-
-void RectangleSFML::setSize(const sf::Vector2f& size)
-{
-	m_shape.setSize(size);
-}
-
-void RectangleSFML::setRotation(const float& angle)
-{
-	m_shape.setRotation(angle);
-}
-
-void RectangleSFML::setCenter(sf::Vector2f vec)
-{
-	m_shape.setOrigin(vec);
-}
-
-sf::Vector2f RectangleSFML::getCenter()
-{
-	return m_shape.getOrigin();
+    m_toBeAddedGameObjects.clear();
 }
 
 
 
-SquareSFML::SquareSFML(float size, sf::Vector2f position, sf::Vector2f Origin):RectangleSFML(size, size, position, Origin)
+
+GameObject::GameObject(IGameObjectContainer& owner) : m_owner(owner)
 {
-	m_shape.setPosition(position);
-	m_shape.setOrigin(Origin);
+    m_owner._addObject(this);
 }
 
-SquareSFML::SquareSFML(float size, sf::Vector2f position):RectangleSFML(size, size, position)
+GameObject::~GameObject()
 {
-	m_shape.setPosition(position);
-	m_shape.setOrigin(m_shape.getSize().x / 2, m_shape.getSize().y / 2);
+    m_owner._removeObject(this);
 }
 
-SquareSFML::SquareSFML(float size, ISceneBase* scene):RectangleSFML(size, size, scene)
+void GameObject::destroy()
 {
-	m_shape.setPosition(scene->getWindow()->getSize().x / 2, scene->getWindow()->getSize().y / 2);
-	m_shape.setOrigin(m_shape.getSize().x / 2, m_shape.getSize().y / 2);
+    m_owner._toBeRemoveObject(this);
 }
 
-CircleSFML::CircleSFML(float r, sf::Vector2f position, sf::Vector2f Origin):m_shape(r)
+void IGameObjectCompound::Update(const float& deltatime)
 {
-	m_shape.setPosition(sf::Vector2f(position));
-	m_shape.setOrigin(Origin);
+    for (auto& gameObject : m_allGameObjects)
+        gameObject->Update(deltatime);
 }
 
-CircleSFML::CircleSFML(float r, sf::Vector2f position):m_shape(r)
+void IGameObjectCompound::ProssesInput(const sf::Event& event)
 {
-	m_shape.setPosition(position);
-	m_shape.setOrigin(m_shape.getRadius(), m_shape.getRadius());
+    for (auto& gameObject : m_allGameObjects)
+        gameObject->ProssesInput(event);
 }
 
-CircleSFML::CircleSFML(float r, ISceneBase* scene):m_shape(r)
+void IGameObjectCompound::Render()
 {
-	m_shape.setPosition(scene->getWindow()->getSize().x / 2, scene->getWindow()->getSize().y / 2);
-	m_shape.setOrigin(m_shape.getRadius(), m_shape.getRadius() );
+    for (auto& gameObject : m_allGameObjects)
+        gameObject->Render();
 }
 
-sf::CircleShape& CircleSFML::getShape()
-{
-	return m_shape;
-}
 
-sf::Vector2f CircleSFML::getPosition()
-{
-	return m_shape.getPosition();
-}
-
-sf::Vector2f CircleSFML::getSize()
-{
-	return sf::Vector2f{ m_shape.getRadius() * 2, m_shape.getRadius()* 2 };
-}
-
-float CircleSFML::getangle()
-{
-	return m_shape.getRotation();
-}
-
-void CircleSFML::setTexture(const sf::Texture& texture)
-{
-	m_shape.setTexture(&texture);
-}
-
-void CircleSFML::setPosition(const sf::Vector2f& position)
-{
-	m_shape.setPosition(position);
-}
-
-void CircleSFML::setSize(const sf::Vector2f& size)
-{
-	if (size.x != size.y)
-		throw std::runtime_error("size must be equal");
-	m_shape.setRadius(size.x / 2);
-}
-
-void CircleSFML::setRotation(const float& angle)
-{
-	m_shape.setRotation(angle);
-}
-
-void CircleSFML::setCenter(sf::Vector2f vec )
-{
-	m_shape.setOrigin(vec);
-}
-sf::Vector2f CircleSFML::getCenter()
-{
-	return m_shape.getOrigin();
-}
