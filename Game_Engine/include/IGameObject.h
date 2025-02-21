@@ -103,4 +103,4 @@ public:
 	void Update(const float& deltatime) override;
 	void ProssesInput(const sf::Event& event) override;
 	void Render() override;
-};
+};	
