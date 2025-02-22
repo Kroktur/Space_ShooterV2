@@ -1,7 +1,7 @@
 #pragma once
 #include "IGameObject.h"
 #include "GameObject.h"
-class Ship : public DestructibleObject
+class Ship : public DestructibleObject, public IComposite
 {
 public:
 	friend FenceShip;

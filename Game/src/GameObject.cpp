@@ -1,6 +1,7 @@
 #include "GameObject.h"
 #include "Ship.h"
 #include "cmath"
+#include <iostream>
 FenceShip::FenceShip(IComposite* scene, IShapeSFML* game_object, Ship* ship) :
 	IFence(scene, game_object)
 	, m_ship(ship)
@@ -9,7 +10,7 @@ FenceShip::FenceShip(IComposite* scene, IShapeSFML* game_object, Ship* ship) :
 	, m_elapsedTime(50)
 {
 	m_shape = new CircleSFML(m_ObjectToProtect->getSize().x / 2, m_ObjectToProtect->getCenter());
-	m_shape->setTexture(m_scene->getScene()->getTexture()->getTexture(m_sprite.getCurrentPath()));
+	m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_sprite.getCurrentPath()));
 }
 
 void FenceShip::Update(const float& deltatime)
@@ -19,13 +20,13 @@ void FenceShip::Update(const float& deltatime)
 	if (m_elapsedTime.AutoActionIsReady())
 	{
 		m_sprite.ChangeToNextPath();
-		m_shape->setTexture(m_scene->getScene()->getTexture()->getTexture(m_sprite.getCurrentPath()));
+		m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_sprite.getCurrentPath()));
 	}
 }
 
 void FenceShip::Render()
 {
-	m_scene->getScene()->getWindow()->draw(static_cast<CircleSFML*>(m_shape)->getShape());
+	m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<CircleSFML*>(m_shape)->getShape());
 }
 
 sf::Vector2f FenceShip::VerifyLimit()
@@ -108,15 +109,61 @@ void ExternFence::Update(const float& deltatime)
 
 void ExternFence::Render()
 {
-	m_scene->getScene()->getWindow()->draw(static_cast<RectangleSFML*>(m_shape)->getShape());
+	m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<RectangleSFML*>(m_shape)->getShape());
+}
+
+ITurret::ITurret(IComposite* scene, IShapeSFML* game_object, sf::Vector2f& positiondiff): IGameObject(scene),IComposite(scene),m_positionDiff(positiondiff),m_gameObject(game_object),m_fireRate(15),m_coolDown(0)
+{
+	
+}
+
+void ITurret::SetFireRate(const float& fireRate)
+{
+	m_fireRate.setNewTimer(fireRate);
+	
+}
+
+void ITurret::SetOverloadGun(const float& overload)
+{
+	m_coolDown.setNewTimer(overload);
+}
+
+
+FixTurret::FixTurret(IComposite* scene, IShapeSFML* game_object, sf::Vector2f& positiondiff, float angle) : ITurret(scene, game_object, positiondiff),m_angleDiff(angle),BaseShape(10, m_gameObject->getPosition())
+{
+	m_shape = new SquareSFML(10, m_gameObject->getPosition());
+}
+
+ void FixTurret::Update(const float& deltatime)
+{
+	 sf::Vector2f gamePos = m_gameObject->getPosition();
+
+	 float angleRad = m_gameObject->getangle() * (3.14159265f / 180.0f);
+
+	 sf::Vector2f rotatedOffset(
+		 m_positionDiff.x * cos(angleRad) - m_positionDiff.y * sin(angleRad),
+		 m_positionDiff.x * sin(angleRad) + m_positionDiff.y * cos(angleRad)
+	 );
+
+	 BaseShape.setPosition(gamePos + rotatedOffset);
+	 BaseShape.setRotation(m_gameObject->getangle());
+
+	 m_shape->setPosition(BaseShape.getPosition());
+	 m_shape->setRotation(m_gameObject->getangle() + m_angleDiff);
+}
+
+void FixTurret::Render()
+{
+	m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<SquareSFML*>(m_shape)->getShape());
 }
 
 Cursor::Cursor(IComposite* scene) :
 	NonDestructibleObject(scene)
+,ILeaf(scene)
 	, m_animate({ "Crossair.png","Crossair2.png","Crossair3.png" })
 {
-	m_shape = new CircleSFML(43, scene->getScene());
-	m_shape->setTexture(m_scene->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
+	m_shape = new CircleSFML(43, scene->getRoot()->getScene());
+	m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
 
 }
 
@@ -126,15 +173,15 @@ void Cursor::ProssesInput(const sf::Event& event)
 
 void Cursor::Update(const float& deltatime)
 {
-	sf::Vector2i mousePos = sf::Mouse::getPosition(*m_scene->getScene()->getWindow());
+	sf::Vector2i mousePos = sf::Mouse::getPosition(*m_scene->getRoot()->getScene()->getWindow());
 	m_shape->setPosition(sf::Vector2f(mousePos.x, mousePos.y));
 }
 
 void Cursor::Render()
 {
-	m_scene->getScene()->getWindow()->draw(static_cast<SquareSFML*>(m_shape)->getShape());
+	m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<SquareSFML*>(m_shape)->getShape());
 }
-IFence::IFence(IComposite* scene, IShapeSFML* object) :NonDestructibleObject(scene), m_ObjectToProtect(object) {}
+IFence::IFence(IComposite* scene, IShapeSFML* object) :NonDestructibleObject(scene),  ILeaf(scene), m_ObjectToProtect(object) {}
 
 MovementInSpace::MovementInSpace(const float& maxVelority, const float& acceleratrion, const float& deceleration) :m_maxVelocity(maxVelority), m_acceleration(acceleratrion), m_deceleration(deceleration) {}
 

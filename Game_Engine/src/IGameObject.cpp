@@ -12,6 +12,11 @@ float convertDegToRad(const float& deg)
     return (deg * 3.14159f) / 180;
 }
 
+IGameObject::IGameObject(IComposite* scene):m_scene(scene)
+{
+
+}
+
 IGameObject::~IGameObject()
 {
     delete m_shape;
@@ -23,10 +28,7 @@ IShapeSFML* IGameObject::getShape()
     return m_shape;
 }
 
-ISceneBase* IGameObject::getScene()
-{
-	return nullptr;
-}
+
 
 DestructibleObject::DestructibleObject(IComposite* scene, const float& life) :IGameObject(scene), m_life(life)
 {
@@ -47,6 +49,15 @@ IComponant::~IComponant()
 	setParent(nullptr);
 }
 
+IComponant* IComponant::getParent()
+{
+	return m_parent;
+}
+
+const IComponant* IComponant::getParent() const
+{
+	return m_parent;
+}
 
 
 void IComponant::setParent(IComposite* parent)
@@ -58,6 +69,26 @@ void IComponant::setParent(IComposite* parent)
 
 	if (m_parent)
 		m_parent->add(this);
+}
+
+RootScene* IComponant::getRoot()
+{
+	auto* curent = this;
+	while (curent->getParent() != nullptr)
+	{
+		curent = curent->getParent();
+	}
+	return static_cast<RootScene*>(curent);
+}
+
+const RootScene* IComponant::getRoot() const
+{
+	auto* curent = this;
+	while (curent->getParent() != nullptr)
+	{
+		curent = curent->getParent();
+	}
+	return static_cast<const RootScene*>(curent);
 }
 
 IComposite::IComposite(IComposite* parent) : IComponant(parent)
@@ -83,6 +114,7 @@ void IComposite::Render()
 		child->Render();
 }
 
+
 IComposite::~IComposite()
 {
 	for (std::make_signed_t<size_t> i = m_shildren.size() - 1; i >= 0; --i)
@@ -91,6 +123,8 @@ IComposite::~IComposite()
 	}
 	m_shildren.clear();
 }
+
+
 
 std::vector<IComponant*> IComposite::getChildren()
 {
@@ -115,7 +149,21 @@ void IComposite::remove(IComponant* data)
 	m_shildren.erase(it);
 }
 
+RootScene::RootScene(ISceneBase* scene):IComposite(nullptr),m_scene(scene)
+{
+
+}
+
+ISceneBase* RootScene::getScene()
+{
+	return m_scene;
+}
+
+
+
+
 ILeaf::ILeaf(IComposite* parent) :IComponant(parent)
 {
 }
+
 

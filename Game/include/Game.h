@@ -8,7 +8,6 @@
  *********************************************************************/
 #include "SceneBase.h"
 #include "GameObject.h"
-class IGameObject;
 /**
  * @brief Derived ISceneBase  Game
  */
@@ -44,6 +43,5 @@ public:
 private:
 	sf::RectangleShape m_Ship;
 	//TODO
-	KT::Vector<IGameObject*> m_object;
 	Cursor cursor;
 };

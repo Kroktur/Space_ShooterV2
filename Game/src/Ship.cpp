@@ -1,7 +1,8 @@
 #include "Ship.h"
-
+#include "IGameObject.h"
 Ship::Ship(IComposite* scene, IShapeSFML* background) :
 	DestructibleObject(scene, 10)
+	,IComposite(scene)
 	, m_background(background)
 	, m_velocity({ 0,0,0,0 })
 	, m_angle(0)
@@ -12,8 +13,11 @@ Ship::Ship(IComposite* scene, IShapeSFML* background) :
 	, dashSpeed(0)
 	, cooldown(5000)
 {
-	m_shape = new SquareSFML(150, scene->getScene());
-	m_shape->setTexture(m_scene->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
+	m_shape = new SquareSFML(150, scene->getRoot()->getScene());
+	m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
+
+	new FixTurret(this, m_shape, sf::Vector2f(35, -25),0);
+	new FixTurret(this, m_shape, sf::Vector2f(35, 25), 0);
 }
 
 Ship::~Ship()
@@ -61,7 +65,7 @@ void Ship::physics()
 void Ship::Update(const float& deltatime)
 {
 	m_shape->setRotation(m_angle);
-	m_background->setPosition(static_cast<MovementInSpace*>(m_phisics)->calculPosition(m_background, m_scene->getScene(), m_velocity));
+	m_background->setPosition(static_cast<MovementInSpace*>(m_phisics)->calculPosition(m_background, m_scene->getRoot()->getScene(), m_velocity));
 	if (m_boost)
 	{
 
@@ -82,18 +86,26 @@ void Ship::Update(const float& deltatime)
 	}
 	if (m_elapsedTime.AutoActionIsReady()) {
 		m_animate.ChangeToNextPath();
-		m_shape->setTexture(m_scene->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
+		m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
+	}
+	for (auto& obj : getChildren())
+	{
+		obj->Update(deltatime);
 	}
 }
 
 void Ship::Render()
 {
-	m_scene->getScene()->getWindow()->draw(static_cast<SquareSFML*>(m_shape)->getShape());
+	m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<SquareSFML*>(m_shape)->getShape());
+	for (auto& obj : getChildren())
+	{
+		obj->Render();
+	}
 }
 
 float Ship::anglecalcul()
 {
-	sf::Vector2i mousePos = sf::Mouse::getPosition(*m_scene->getScene()->getWindow());
+	sf::Vector2i mousePos = sf::Mouse::getPosition(*m_scene->getRoot()->getScene()->getWindow());
 	sf::Vector2f shipPos = m_shape->getPosition();
 	float deltaX = mousePos.x - shipPos.x;
 	float deltaY = mousePos.y - shipPos.y;

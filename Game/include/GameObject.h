@@ -15,7 +15,7 @@ enum trust
 	, Down = 3
 	, Default = 4
 };
-class Cursor : public NonDestructibleObject
+class Cursor : public NonDestructibleObject ,public ILeaf
 {
 public:
 	Cursor(IComposite* scene);
@@ -47,7 +47,7 @@ private:
 };
 
 
-class IFence : public NonDestructibleObject
+class IFence : public NonDestructibleObject , public ILeaf
 {
 public:
 
@@ -91,3 +91,36 @@ private:
 	sf::Vector2f m_diffposition;
 	float m_BorderSize;
 };
+
+class ITurret: public IGameObject , public IComposite
+{
+public:
+	ITurret(IComposite* scene, IShapeSFML* game_object, sf::Vector2f& positiondiff);
+	void ProssesInput(const sf::Event& event) override = 0;
+	void Update(const float& deltatime) override = 0;
+	void Render() override = 0;
+	virtual void Fire() = 0;
+	void SetFireRate(const float& fireRate);
+	void SetOverloadGun(const float& overload);
+protected:
+	sf::Vector2f m_positionDiff;
+	IShapeSFML* m_gameObject;
+	Timer m_fireRate;
+	Timer m_coolDown;
+	
+};
+
+class FixTurret : public  ITurret
+{
+public:
+	FixTurret(IComposite* scene, IShapeSFML* game_object, sf::Vector2f& positiondiff,float angle);
+	void ProssesInput(const sf::Event& event) override{}
+	void Update(const float& deltatime) override;
+	void Render() override;
+	void Fire() override{}
+private:
+	float m_angleDiff;
+	SquareSFML BaseShape;
+};
+
+

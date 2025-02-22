@@ -16,7 +16,7 @@ class IShapeSFML;
 /**
  * @brief  class ISceneBase Interaface of Scene
  */
-class ISceneBase : public IComposite
+class ISceneBase : public RootScene
 {
 public:
 	/**
@@ -74,10 +74,6 @@ public:
 
 
 
-	ISceneBase* getScene()
-	{
-		return this;
-	}
 protected:
 	IShapeSFML* m_Background;
 	TextureCache* m_texture;
