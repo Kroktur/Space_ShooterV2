@@ -1,5 +1,7 @@
 #include "IGameObject.h"
+#include "SceneBase.h"
 #include "IShape.h"
+#include <iostream>
 float convertRadToDeg(const float& rad)
 {
     return (180 * rad) / 3.14159f;
@@ -13,6 +15,7 @@ float convertDegToRad(const float& deg)
 IGameObject::~IGameObject()
 {
     delete m_shape;
+	std::cout << "Game Object detruit" << std::endl;
 }
 
 IShapeSFML* IGameObject::getShape()
@@ -20,11 +23,16 @@ IShapeSFML* IGameObject::getShape()
     return m_shape;
 }
 
-DestructibleObject::DestructibleObject(ISceneBase* scene, const float& life) :IGameObject(scene), m_life(life)
+ISceneBase* IGameObject::getScene()
+{
+	return nullptr;
+}
+
+DestructibleObject::DestructibleObject(IComposite* scene, const float& life) :IGameObject(scene), m_life(life)
 {
 }
 
-NonDestructibleObject::NonDestructibleObject(ISceneBase* scene) :IGameObject(scene)
+NonDestructibleObject::NonDestructibleObject(IComposite* scene) :IGameObject(scene)
 {
 }
 
@@ -39,10 +47,7 @@ IComponant::~IComponant()
 	setParent(nullptr);
 }
 
-IComponant* IComponant::get()
-{
-	return this;
-}
+
 
 void IComponant::setParent(IComposite* parent)
 {

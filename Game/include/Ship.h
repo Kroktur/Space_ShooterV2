@@ -5,7 +5,7 @@ class Ship : public DestructibleObject
 {
 public:
 	friend FenceShip;
-	Ship(ISceneBase* scene, IShapeSFML* background);
+	Ship(IComposite* scene, IShapeSFML* background);
 	~Ship();
 
 	void ProssesInput(const sf::Event& event) override;

@@ -12,18 +12,18 @@ Game::Game(sf::RenderWindow* window, const float& framerate, TextureCache* textu
 {
 	m_Background = new SquareSFML(10000, sf::Vector2f(0, 0));
 	m_Background->setTexture(m_texture->getTexture("galaxie4.png"));
-	m_object.pushBack(new Ship(this, m_Background));
-	m_object.pushBack(new FenceShip(this, m_Background, static_cast<Ship*>(m_object[0])));
-	m_object.pushBack(new ExternFence(this, m_Background, Position::Down, 5));
-	m_object.pushBack(new ExternFence(this, m_Background, Position::Up, 5));
-	m_object.pushBack(new ExternFence(this, m_Background, Position::Left, 5));
-	m_object.pushBack(new ExternFence(this, m_Background, Position::Right, 5));
+	auto* ship = new Ship(this, m_Background);
+	new FenceShip(this, m_Background, static_cast<Ship*>(ship));
+	new ExternFence(this, m_Background, Position::Down, 5);
+	new ExternFence(this, m_Background, Position::Up, 5);
+	new ExternFence(this, m_Background, Position::Left, 5);
+	new ExternFence(this, m_Background, Position::Right, 5);
 	getWindow()->setMouseCursorVisible(false);
 }
 
 void Game::Update(const float& deltatime)
 {
-	for (auto& obj : m_object)
+	for (auto& obj : getChildren())
 	{
 		obj->Update(deltatime);
 	}
@@ -32,7 +32,7 @@ void Game::Update(const float& deltatime)
 
 void Game::ProssesInput(const sf::Event& event)
 {
-	for (auto& obj : m_object)
+	for (auto& obj : getChildren())
 	{
 		obj->ProssesInput(event);
 	}
@@ -43,7 +43,7 @@ void Game::Render()
 {
 	getWindow()->draw(static_cast<SquareSFML*>(m_Background)->getShape());
 	/*getWindow()->draw(m_Ship);*/
-	for (auto& obj : m_object)
+	for (auto& obj : getChildren())
 	{
 		obj->Render();
 	}

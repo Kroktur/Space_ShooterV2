@@ -1,60 +1,21 @@
 #pragma once
 #include <KT_Array.h>
-
-#include "SceneBase.h"
+#include "SFML/Graphics.hpp"
+#include "IGameObject.h"
 float convertRadToDeg(const float& rad);
 
 float convertDegToRad(const float& deg);
 class IShapeSFML;
 
-class IGameObject
-{
-public:
-	IGameObject(ISceneBase* scene) :m_scene(scene), m_shape(nullptr) {}
-	virtual ~IGameObject();
 
-	virtual void Update(const float& deltatime) = 0;
-
-	virtual void ProssesInput(const sf::Event& event) = 0;
-
-	virtual void Render() = 0;
-
-	IShapeSFML* getShape();
-
-protected:
-	ISceneBase* m_scene;
-	IShapeSFML* m_shape;
-};
-
-class DestructibleObject : public IGameObject
-{
-public:
-	DestructibleObject(ISceneBase* scene, const float& life);
-	void Update(const float& deltatime) override = 0;
-	void ProssesInput(const sf::Event& event) override = 0;
-	void Render() = 0;
-	void ChangeLife(const float& life) { m_life += life; }
-	float getCurrentLife() { return m_life; }
-protected:
-	float m_life;
-};
-class NonDestructibleObject : public IGameObject
-{
-public:
-	NonDestructibleObject(ISceneBase* scene);
-	void Update(const float& deltatime) override = 0;
-	void ProssesInput(const sf::Event& event) override = 0;
-	void Render() = 0;
-};
-
-
+class ISceneBase;
 class IComposite;
 class IComponant
 {
 public:
 	IComponant(IComposite* parent = nullptr);
 	virtual ~IComponant();
-	IComponant* get();
+	virtual ISceneBase* getScene() = 0;
 	virtual void Update(const float& deltatime) = 0;
 
 	virtual void ProssesInput(const sf::Event& event) = 0;
@@ -77,6 +38,7 @@ public:
 
 	virtual void Render()override;
 
+
 	~IComposite();
 protected:
 	std::vector<IComponant*> getChildren();
@@ -90,7 +52,7 @@ private:
 class ILeaf : public IComponant
 {
 public:
-	virtual void Update(const float& deltatime)= 0;
+	virtual void Update(const float& deltatime) = 0;
 
 	virtual void ProssesInput(const sf::Event& event) = 0;
 
@@ -99,4 +61,49 @@ public:
 	ILeaf(IComposite* parent = nullptr);
 };
 
+
+
+
+
+
+class IGameObject : public IComposite
+{
+public:
+	IGameObject(IComposite* scene) :IComposite(scene) ,m_scene(scene), m_shape(nullptr) {}
+	virtual ~IGameObject();
+
+	virtual void Update(const float& deltatime) = 0;
+
+	virtual void ProssesInput(const sf::Event& event) = 0;
+
+	virtual void Render() = 0;
+
+	IShapeSFML* getShape();
+	ISceneBase* getScene() override;
+
+protected:
+	IComposite* m_scene;
+	IShapeSFML* m_shape;
+};
+
+class DestructibleObject : public IGameObject
+{
+public:
+	DestructibleObject(IComposite* scene, const float& life);
+	void Update(const float& deltatime) override = 0;
+	void ProssesInput(const sf::Event& event) override = 0;
+	void Render() = 0;
+	void ChangeLife(const float& life) { m_life += life; }
+	float getCurrentLife() { return m_life; }
+protected:
+	float m_life;
+};
+class NonDestructibleObject : public IGameObject
+{
+public:
+	NonDestructibleObject(IComposite* scene);
+	void Update(const float& deltatime) override = 0;
+	void ProssesInput(const sf::Event& event) override = 0;
+	void Render() = 0;
+};
 

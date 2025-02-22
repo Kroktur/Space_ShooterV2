@@ -9,12 +9,14 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
+#include "IGameObject.h"
+
 class IShapeSFML;
 #include "TextureCache.h"
 /**
  * @brief  class ISceneBase Interaface of Scene
  */
-class ISceneBase
+class ISceneBase : public IComposite
 {
 public:
 	/**
@@ -69,6 +71,13 @@ public:
 	sf::Vector2f getBackgroundCenter();
 	sf::Vector2f getBackgroundSize();
 	TextureCache* getTexture() { return m_texture; }
+
+
+
+	ISceneBase* getScene()
+	{
+		return this;
+	}
 protected:
 	IShapeSFML* m_Background;
 	TextureCache* m_texture;
