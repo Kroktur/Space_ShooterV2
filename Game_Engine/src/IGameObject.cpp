@@ -29,99 +29,88 @@ NonDestructibleObject::NonDestructibleObject(ISceneBase* scene) :IGameObject(sce
 }
 
 
-
-IGameObjectContainer::~IGameObjectContainer()
+IComponant::IComponant(IComposite* parent) :m_parent(nullptr)
 {
-    auto allGameObjects = m_allGameObjects;
-    for (auto& gameObject : allGameObjects)
-        delete gameObject;
+	setParent(parent);
 }
 
-void IGameObjectContainer::_addObject(GameObject* go)
+IComponant::~IComponant()
 {
-    m_toBeAddedGameObjects.pushBack(go);
+	setParent(nullptr);
 }
 
-struct RemoveNonExisitingGameObject : public std::runtime_error
+IComponant* IComponant::get()
 {
-    RemoveNonExisitingGameObject() : std::runtime_error("Try to remove non existing Game Object.")
-    {
-    }
-};
-
-void IGameObjectContainer::_removeObject(GameObject* go)
-{
-    auto it = std::find(m_allGameObjects.begin(), m_allGameObjects.end(), go);
-    if (it == m_allGameObjects.end()) // No elem found.
-        throw RemoveNonExisitingGameObject();
-
-    m_allGameObjects.erase(it);
+	return this;
 }
 
-void IGameObjectContainer::_toBeRemoveObject(GameObject* go)
+void IComponant::setParent(IComposite* parent)
 {
-    auto it = std::find(m_toBeRemovedGameObjects.begin(), m_toBeRemovedGameObjects.end(), go);
+	if (m_parent)
+		m_parent->remove(this);
 
-    if (it != m_toBeRemovedGameObjects.end())
-        return;
+	m_parent = parent;
 
-    m_toBeRemovedGameObjects.pushBack(go);
+	if (m_parent)
+		m_parent->add(this);
 }
 
-void IGameObjectContainer::_cleanObject()
+IComposite::IComposite(IComposite* parent) : IComponant(parent)
 {
-    for (auto& go : m_toBeRemovedGameObjects)
-        delete go;
 
-    m_toBeRemovedGameObjects.clear();
+}
+void IComposite::Update(const float& deltatime)
+{
+	for (auto& child : m_shildren)
+		child->Update(deltatime);
 }
 
-void IGameObjectContainer::_deferedAddObject(GameObject* go)
+void IComposite::ProssesInput(const sf::Event& event)
 {
-    m_allGameObjects.pushBack(go);
-}
-
-void IGameObjectContainer::_deferedAddObjects()
-{
-    for (auto& go : m_toBeAddedGameObjects)
-        _deferedAddObject(go);
-
-    m_toBeAddedGameObjects.clear();
+	for (auto& child : m_shildren)
+		child->ProssesInput(event);
 }
 
 
-
-
-GameObject::GameObject(IGameObjectContainer& owner) : m_owner(owner)
+void IComposite::Render()
 {
-    m_owner._addObject(this);
+	for (auto& child : m_shildren)
+		child->Render();
 }
 
-GameObject::~GameObject()
+IComposite::~IComposite()
 {
-    m_owner._removeObject(this);
+	for (std::make_signed_t<size_t> i = m_shildren.size() - 1; i >= 0; --i)
+	{
+		delete m_shildren[i];
+	}
+	m_shildren.clear();
 }
 
-void GameObject::destroy()
+std::vector<IComponant*> IComposite::getChildren()
 {
-    m_owner._toBeRemoveObject(this);
+	return m_shildren;
 }
 
-void IGameObjectCompound::Update(const float& deltatime)
+const std::vector<IComponant*> IComposite::getChildren() const
 {
-    for (auto& gameObject : m_allGameObjects)
-        gameObject->Update(deltatime);
+	return m_shildren;
 }
 
-void IGameObjectCompound::ProssesInput(const sf::Event& event)
+void IComposite::add(IComponant* data)
 {
-    for (auto& gameObject : m_allGameObjects)
-        gameObject->ProssesInput(event);
+	m_shildren.push_back(data);
 }
 
-void IGameObjectCompound::Render()
+void IComposite::remove(IComponant* data)
 {
-    for (auto& gameObject : m_allGameObjects)
-        gameObject->Render();
+	auto it = std::find(m_shildren.begin(), m_shildren.end(), data);
+	if (it == m_shildren.end())
+		throw;
+	m_shildren.erase(it);
+}
+
+ILeaf::ILeaf(IComposite* parent) :IComponant(parent)
+{
 }
 

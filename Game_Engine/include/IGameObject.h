@@ -48,59 +48,55 @@ public:
 };
 
 
-
-
-class GameObject;
-
-class IGameObjectContainer
+class IComposite;
+class IComponant
 {
 public:
-	void _addObject(GameObject*);
-	void _removeObject(GameObject*);
-	void _toBeRemoveObject(GameObject*);
-	void _deferedAddObject(GameObject*);
-	void _deferedAddObjects();
-	void _cleanObject();
-	~IGameObjectContainer();
-
-	virtual ISceneBase* getScene() = 0;
-
-protected:
-	KT::Vector<GameObject*> m_allGameObjects;
-	KT::Vector<GameObject*> m_toBeRemovedGameObjects;
-	KT::Vector<GameObject*> m_toBeAddedGameObjects;
-};
-
-class GameObject
-{
-public:
-	GameObject(IGameObjectContainer& owner);
-	virtual ~GameObject();
-
-
+	IComponant(IComposite* parent = nullptr);
+	virtual ~IComponant();
+	IComponant* get();
 	virtual void Update(const float& deltatime) = 0;
 
 	virtual void ProssesInput(const sf::Event& event) = 0;
 
 	virtual void Render() = 0;
 
-	IShapeSFML* getShape();
-
-	void destroy();
-
-	IGameObjectContainer& getOwner() { return m_owner; }
-
-	const IGameObjectContainer& getOwner() const { return m_owner; }
-
-protected:
-	IGameObjectContainer& m_owner;
+	void setParent(IComposite* parent);
+private:
+	IComposite* m_parent;
 };
 
-class IGameObjectCompound : public GameObject, public IGameObjectContainer
+class IComposite : public IComponant
 {
 public:
-	IGameObjectCompound(IGameObjectContainer& owner);
-	void Update(const float& deltatime) override;
-	void ProssesInput(const sf::Event& event) override;
-	void Render() override;
-};	
+	friend IComponant;
+	IComposite(IComposite* parent = nullptr);
+	virtual void Update(const float& deltatime)override;
+
+	virtual void ProssesInput(const sf::Event& event)override;
+
+	virtual void Render()override;
+
+	~IComposite();
+protected:
+	std::vector<IComponant*> getChildren();
+	const std::vector<IComponant*> getChildren() const;
+private:
+	void add(IComponant* data);
+	void remove(IComponant* data);
+private:
+	std::vector<IComponant*> m_shildren;
+};
+class ILeaf : public IComponant
+{
+public:
+	virtual void Update(const float& deltatime)= 0;
+
+	virtual void ProssesInput(const sf::Event& event) = 0;
+
+	virtual void Render() = 0;
+
+	ILeaf(IComposite* parent = nullptr);
+};
+
+
