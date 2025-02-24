@@ -8,6 +8,9 @@
  *********************************************************************/
 #include "SceneBase.h"
 #include "GameObject.h"
+
+bool Collision(AABB a, AABB b);
+
 /**
  * @brief Derived ISceneBase  Game
  */

@@ -25,6 +25,7 @@ public:
 
 	void ChangePath(const int& idx);
 
+
 private:
 	KT::Vector<std::string> m_textureContainer;
 	int m_curentTexture;
@@ -43,6 +44,8 @@ public:
 	virtual void setTexture(const sf::Texture& texture) = 0;
 	virtual void setCenter(sf::Vector2f) = 0;
 	virtual sf::Vector2f getCenter() = 0;
+
+	virtual AABB GetBoundingBox() = 0;
 };
 class RectangleSFML : public IShapeSFML
 {
@@ -71,6 +74,8 @@ public:
 	sf::Vector2f getCenter() override;
 
 	sf::RectangleShape& getShape();
+
+	 AABB GetBoundingBox()override;
 
 protected:
 	sf::RectangleShape m_shape;
@@ -113,6 +118,7 @@ public:
 	sf::Vector2f getCenter() override;
 
 	sf::CircleShape& getShape();
+	AABB GetBoundingBox()override;
 
 protected:
 	sf::CircleShape m_shape;

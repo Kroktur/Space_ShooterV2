@@ -2,6 +2,10 @@
 #include "SceneBase.h"
 #include "IShape.h"
 #include <iostream>
+
+AABB::AABB(sf::Vector2f Amin_, sf::Vector2f Amax) : Amin(Amin_), Amax(Amax) {}
+
+
 float convertRadToDeg(const float& rad)
 {
     return (180 * rad) / 3.14159f;
@@ -21,6 +25,11 @@ IGameObject::~IGameObject()
 {
     delete m_shape;
 	std::cout << "Game Object detruit" << std::endl;
+}
+
+AABB IGameObject::GetBoundingBox()
+{
+	return m_shape->GetBoundingBox();
 }
 
 IShapeSFML* IGameObject::getShape()

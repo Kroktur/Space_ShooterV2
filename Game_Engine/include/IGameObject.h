@@ -4,7 +4,12 @@
 #include "IGameObject.h"
 #include "SFML/Graphics.hpp"
 
-
+struct AABB
+{
+	AABB(sf::Vector2f Amin_, sf::Vector2f Amax);
+	sf::Vector2f Amin;
+	sf::Vector2f Amax;
+};
 
 
 float convertRadToDeg(const float& rad);
@@ -118,7 +123,7 @@ public:
 	virtual void Update(const float& deltatime) = 0;
 	virtual void ProssesInput(const sf::Event& event) = 0;
 	virtual void Render() = 0;
-
+	virtual AABB GetBoundingBox();
 	IShapeSFML* getShape();
 protected:
 	IComposite* m_scene;

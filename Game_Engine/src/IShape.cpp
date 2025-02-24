@@ -89,6 +89,19 @@ sf::RectangleShape& RectangleSFML::getShape()
 	return m_shape;
 }
 
+AABB RectangleSFML::GetBoundingBox()
+{
+	AABB boundingbox{sf::Vector2f(0,0),sf::Vector2f(0,0) };
+	boundingbox.Amin.x = m_shape.getPosition().x - m_shape.getSize().x / 2;
+	boundingbox.Amin.y = m_shape.getPosition().y - m_shape.getSize().y / 2;
+
+	boundingbox.Amax.x = m_shape.getPosition().x + m_shape.getSize().x / 2;
+	boundingbox.Amax.y = m_shape.getPosition().y + m_shape.getSize().y / 2;
+
+	
+	return boundingbox;
+}
+
 sf::Vector2f RectangleSFML::getPosition()
 {
 	return m_shape.getPosition();
@@ -175,6 +188,18 @@ CircleSFML::CircleSFML(float r, ISceneBase* scene) :m_shape(r)
 sf::CircleShape& CircleSFML::getShape()
 {
 	return m_shape;
+}
+
+AABB CircleSFML::GetBoundingBox()
+{
+	AABB boundingbox{ sf::Vector2f(0,0),sf::Vector2f(0,0) };
+	boundingbox.Amin.x = m_shape.getPosition().x - m_shape.getRadius();
+	boundingbox.Amin.y = m_shape.getPosition().y - m_shape.getRadius();
+
+	boundingbox.Amax.x = m_shape.getPosition().x + m_shape.getRadius();
+	boundingbox.Amax.y = m_shape.getPosition().y + m_shape.getRadius();
+
+	return boundingbox;
 }
 
 sf::Vector2f CircleSFML::getPosition()
