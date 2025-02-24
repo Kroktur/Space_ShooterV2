@@ -112,9 +112,29 @@ void ExternFence::Render()
 	m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<RectangleSFML*>(m_shape)->getShape());
 }
 
-ITurret::ITurret(IComposite* scene, IShapeSFML* game_object, sf::Vector2f& positiondiff): IGameObject(scene),IComposite(scene),m_positionDiff(positiondiff),m_gameObject(game_object),m_fireRate(15),m_coolDown(0)
+ITurret::ITurret(IComposite* scene, IShapeSFML* game_object, sf::Vector2f& positiondiff) :
+	NonDestructibleObject(scene)
+	, IComposite(scene)
+	, m_positionDiff(positiondiff)
+	, m_gameObject(game_object)
+	, m_fireRate(15)
+	, m_coolDown(0)
+	, m_maxShot(0)
+	, m_bulletSpeed(10)
+	, m_bulletLife(1)
+	,m_bulletSize(15)
 {
 	
+}
+
+void ITurret::setBullet(float Size, float Speed, float hp)
+{
+	if (Size != 0)
+		m_bulletSize = Size;
+	if (Speed != 0)
+		m_bulletSpeed = Speed;
+	if (hp != 0)
+		m_bulletLife = hp;
 }
 
 void ITurret::SetFireRate(const float& fireRate)
@@ -123,11 +143,16 @@ void ITurret::SetFireRate(const float& fireRate)
 	
 }
 
-void ITurret::SetOverloadGun(const float& overload)
+void ITurret::SetOverloadGun(const float& overloadcoodown, float MaxShot)
 {
-	m_coolDown.setNewTimer(overload);
+	m_coolDown.setNewTimer(overloadcoodown);
+	m_maxShot.setNewTimer(MaxShot);
 }
 
+
+PlayerSprite::PlayerSprite():AnimateSprite({""})
+{
+}
 
 FixTurret::FixTurret(IComposite* scene, IShapeSFML* game_object, sf::Vector2f& positiondiff, float angle) : ITurret(scene, game_object, positiondiff),m_angleDiff(angle),BaseShape(10, m_gameObject->getPosition())
 {
@@ -138,7 +163,7 @@ FixTurret::FixTurret(IComposite* scene, IShapeSFML* game_object, sf::Vector2f& p
 {
 	 sf::Vector2f gamePos = m_gameObject->getPosition();
 
-	 float angleRad = m_gameObject->getangle() * (3.14159265f / 180.0f);
+	 float angleRad = convertDegToRad(m_gameObject->getangle());
 
 	 sf::Vector2f rotatedOffset(
 		 m_positionDiff.x * cos(angleRad) - m_positionDiff.y * sin(angleRad),
@@ -150,11 +175,141 @@ FixTurret::FixTurret(IComposite* scene, IShapeSFML* game_object, sf::Vector2f& p
 
 	 m_shape->setPosition(BaseShape.getPosition());
 	 m_shape->setRotation(m_gameObject->getangle() + m_angleDiff);
+	 m_fireRate.NextTIck();
+	 for (auto& obj : getChildren())
+	 {
+		 obj->Update(deltatime);
+	 }
 }
 
 void FixTurret::Render()
 {
+
 	m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<SquareSFML*>(m_shape)->getShape());
+	for (auto& obj : getChildren())
+	{
+		obj->Render();
+	}
+}
+
+void FixTurret::Fire()
+{
+	if (m_maxShot.ActionIsReady() && m_fireRate.ActionIsReady())
+	{
+		if (m_coolDown.ActionIsReady())
+		{
+			m_maxShot.resetTimer();
+			m_coolDown.resetTimer();
+		}
+		else
+			m_coolDown.NextTIck();
+	}
+
+	if (m_fireRate.ActionIsReady() && !m_maxShot.ActionIsReady())
+	{
+		new ClassicBullet(PlayerSprite{}, this, this, m_shape->getangle(), m_bulletSpeed, m_bulletSize, m_bulletLife);
+		m_maxShot.NextTIck();
+		m_fireRate.resetTimer();
+	}
+
+}
+
+
+
+
+
+
+
+AutoTurret::AutoTurret(IComposite* scene, IShapeSFML* game_object,IShapeSFML* target, sf::Vector2f& positiondiff) : ITurret(scene, game_object, positiondiff),  BaseShape(10, m_gameObject->getPosition()),m_Target(target)
+{
+	m_shape = new SquareSFML(10, m_gameObject->getPosition());
+}
+
+void AutoTurret::Update(const float& deltatime)
+{
+	sf::Vector2f gamePos = m_gameObject->getPosition();
+
+	float angleRad = convertDegToRad(m_gameObject->getangle());
+
+	sf::Vector2f rotatedOffset(
+		m_positionDiff.x * cos(angleRad) - m_positionDiff.y * sin(angleRad),
+		m_positionDiff.x * sin(angleRad) + m_positionDiff.y * cos(angleRad)
+	);
+
+	BaseShape.setPosition(gamePos + rotatedOffset);
+	BaseShape.setRotation(m_gameObject->getangle());
+
+	m_shape->setPosition(BaseShape.getPosition());
+
+	
+	float angletoRad2 = convertRadToDeg(std::atan2(m_Target->getPosition().y - m_shape->getPosition().y, m_Target->getPosition().x - m_shape->getPosition().x));
+	m_shape->setRotation(angletoRad2);
+	m_fireRate.NextTIck();
+	for (auto& obj : getChildren())
+	{
+		obj->Update(deltatime);
+	}
+}
+
+void AutoTurret::Render()
+{
+
+	m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<SquareSFML*>(m_shape)->getShape());
+	for (auto& obj : getChildren())
+	{
+		obj->Render();
+	}
+}
+
+void AutoTurret::Fire()
+{
+	if (m_maxShot.ActionIsReady() && m_fireRate.ActionIsReady())
+	{
+		if (m_coolDown.ActionIsReady())
+		{
+			m_maxShot.resetTimer();
+			m_coolDown.resetTimer();
+		}
+		else
+			m_coolDown.NextTIck();
+	}
+
+	if (m_fireRate.ActionIsReady() && !m_maxShot.ActionIsReady())
+	{
+		new ClassicBullet(PlayerSprite{}, this, this, m_shape->getangle(), m_bulletSpeed, m_bulletSize, m_bulletLife);
+		m_maxShot.NextTIck();
+		m_fireRate.resetTimer();
+	}
+
+}
+
+
+IBullet::IBullet(AnimateSprite animate,IComposite* scene, ITurret* gun, float angle, float speed,float size,float hp):DestructibleObject(scene,hp), ILeaf(scene),m_gun(gun), m_gunPosition(0,0),m_gunangle(angle),m_speed(speed),m_size(size), m_animate(animate)
+{
+	m_gunPosition = m_gun->getShape()->getPosition();
+}
+
+ClassicBullet::ClassicBullet(AnimateSprite animate,IComposite* scene, ITurret* gun, float angle, float speed, float size, float hp) : IBullet(animate,scene, gun, angle, speed, size, hp)
+{
+	m_shape = new SquareSFML(size, m_gunPosition);
+	m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
+	m_shape->setRotation(m_gunangle);
+
+}
+
+void ClassicBullet::Render()
+{
+	m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<SquareSFML*>(m_shape)->getShape());
+
+}
+
+void ClassicBullet::Update(const float& deltatime)
+{
+	float angleRad = convertDegToRad(m_gunangle);
+	sf::Vector2f moov(std::cos(angleRad) * m_speed, std::sin(angleRad) * m_speed);
+	m_gunPosition += moov;
+	m_shape->setPosition(m_gunPosition);
+
 }
 
 Cursor::Cursor(IComposite* scene) :
@@ -236,3 +391,4 @@ sf::Vector2f MovementInSpace::calculPosition(IShapeSFML* entity, ISceneBase* sce
 	sf::Vector2f Newposition = { entity->getPosition().x + ((x * scene->getRefreshTime().asSeconds())),entity->getPosition().y + ((y * scene->getRefreshTime().asSeconds())) };
 	return Newposition;
 }
+

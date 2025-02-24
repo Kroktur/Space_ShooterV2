@@ -12,12 +12,21 @@ Ship::Ship(IComposite* scene, IShapeSFML* background) :
 	, m_boost(false)
 	, dashSpeed(0)
 	, cooldown(5000)
+
 {
 	m_shape = new SquareSFML(150, scene->getRoot()->getScene());
 	m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
 
-	new FixTurret(this, m_shape, sf::Vector2f(35, -25),0);
-	new FixTurret(this, m_shape, sf::Vector2f(35, 25), 0);
+	//new FixTurret(this, m_shape, sf::Vector2f(35, -25),0);
+	//new FixTurret(this, m_shape, sf::Vector2f(35, 25), 0);
+	m_turrets[0] = new FixTurret(scene, m_shape, sf::Vector2f(35, -25), 0.75);
+	m_turrets[1] = new FixTurret(scene, m_shape, sf::Vector2f(35, 25), -0.75);
+	for (auto& turret : m_turrets)
+	{
+		turret->SetFireRate(50);
+		turret->SetOverloadGun(0,5);
+		turret->setBullet(0, 0, 0);
+	}
 }
 
 Ship::~Ship()
@@ -45,6 +54,13 @@ void Ship::ProssesInput(const sf::Event& event)
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 	{
 		m_strafe[trust::Down] = true;
+	}
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+	{
+		for (auto& turret : m_turrets)
+		{
+			turret->Fire();
+		}
 	}
 	static_cast<MovementInSpace*>(m_phisics)->ExecutePhysics(m_strafe, m_velocity);
 	physics();

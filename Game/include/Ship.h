@@ -30,4 +30,5 @@ private:
 	float dashSpeed;
 	AnimateSprite m_animate;
 	IPhysics* m_phisics;
+	KT::Array<ITurret*,2> m_turrets;
 };
