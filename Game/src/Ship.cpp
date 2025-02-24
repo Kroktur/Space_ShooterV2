@@ -104,19 +104,14 @@ void Ship::Update(const float& deltatime)
 		m_animate.ChangeToNextPath();
 		m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
 	}
-	for (auto& obj : getChildren())
-	{
-		obj->Update(deltatime);
-	}
+	
+	IComposite::Update(deltatime);
 }
 
 void Ship::Render()
 {
 	m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<SquareSFML*>(m_shape)->getShape());
-	for (auto& obj : getChildren())
-	{
-		obj->Render();
-	}
+	IComposite::Render();
 }
 
 float Ship::anglecalcul()

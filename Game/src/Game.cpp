@@ -1,4 +1,7 @@
 #include "Game.h"
+//TODO
+#include <iostream>
+
 #include "Ship.h"
 #include "IGameObject.h"
 /*****************************************************************//**
@@ -28,6 +31,8 @@ void Game::Update(const float& deltatime)
 		obj->Update(deltatime);
 	}
 	cursor.Update(deltatime);
+
+	std::cout << getFullTree().Size() << std::endl;
 }
 
 void Game::ProssesInput(const sf::Event& event)

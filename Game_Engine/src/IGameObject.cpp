@@ -117,7 +117,7 @@ void IComposite::Render()
 
 IComposite::~IComposite()
 {
-	for (std::make_signed_t<size_t> i = m_shildren.size() - 1; i >= 0; --i)
+	for (std::make_signed_t<size_t> i = m_shildren.Size() - 1; i >= 0; --i)
 	{
 		delete m_shildren[i];
 	}
@@ -126,19 +126,35 @@ IComposite::~IComposite()
 
 
 
-std::vector<IComponant*> IComposite::getChildren()
+KT::Vector<IComponant*> IComposite::getChildren()
 {
 	return m_shildren;
 }
 
-const std::vector<IComponant*> IComposite::getChildren() const
+const KT::Vector<IComponant*> IComposite::getChildren() const
 {
 	return m_shildren;
 }
+
+//KT::Vector<IComponant*> IComposite::IterateAllComposite()
+//{
+//	KT::Vector<IComponant*> result;
+//	for (auto child : getChildren())
+//	{
+//		m_shildren.pushBack(child);
+//		if (child->GetComponantType() == Componant::IComposite)
+//		{
+//			for (auto childchild : static_cast<IComposite*>(child)->getChildren())
+//			{
+//				
+//			}
+//		}
+//	}
+//}
 
 void IComposite::add(IComponant* data)
 {
-	m_shildren.push_back(data);
+	m_shildren.pushBack(data);
 }
 
 void IComposite::remove(IComponant* data)
@@ -154,12 +170,29 @@ RootScene::RootScene(ISceneBase* scene):IComposite(nullptr),m_scene(scene)
 
 }
 
+KT::Vector<IComponant*> RootScene::getFullTree()
+{
+	KT::Vector<IComponant*> Result;
+	AddFullTree(Result, getChildren());
+	return Result;
+}
+
 ISceneBase* RootScene::getScene()
 {
 	return m_scene;
 }
 
-
+void RootScene::AddFullTree(KT::Vector<IComponant*>& toAdd, KT::Vector<IComponant*> iterate)
+{
+	for (auto it : iterate)
+	{
+		toAdd.pushBack(it);
+		if (it->GetComponantType() == Componant::IComposite)
+		{
+			AddFullTree(toAdd, static_cast<IComposite*>(it)->getChildren());
+		}
+	}
+}
 
 
 ILeaf::ILeaf(IComposite* parent) :IComponant(parent)

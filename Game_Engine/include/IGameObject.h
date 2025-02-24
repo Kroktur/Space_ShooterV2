@@ -1,6 +1,11 @@
 #pragma once
+#include <KT_Vector.h>
+
 #include "IGameObject.h"
 #include "SFML/Graphics.hpp"
+
+
+
 
 float convertRadToDeg(const float& rad);
 float convertDegToRad(const float& deg);
@@ -9,6 +14,12 @@ class IShapeSFML;
 class RootScene;
 class ISceneBase;
 class IComposite;
+enum class Componant
+{
+	IComposite
+	,ILeaf
+};
+
 
 class IComponant
 {
@@ -21,7 +32,8 @@ public:
 	virtual void Update(const float& deltatime) = 0;
 	virtual void ProssesInput(const sf::Event& event) = 0;
 	virtual void Render() = 0;
-
+	virtual Componant GetComponantType() = 0;
+	virtual const Componant GetComponantType() const = 0;
 	 RootScene* getRoot();
 	 const RootScene* getRoot() const;
 
@@ -43,23 +55,37 @@ public:
 	 void Update(const float& deltatime)override;
 	 void ProssesInput(const sf::Event& event)override;
 	 void Render()override;
+	 KT::Vector<IComponant*> getChildren();
+	 const KT::Vector<IComponant*> getChildren() const;
 protected:
-	std::vector<IComponant*> getChildren();
-	const std::vector<IComponant*> getChildren() const;
+
+	//KT::Vector<IComponant*> IterateAllComposite();
+	//const KT::Vector<IComponant*> IterateAllComposite() const;
+
+	 Componant GetComponantType() override
+	 {
+		 return Componant::IComposite;
+	 }
+	 const Componant GetComponantType() const override
+	{
+		 return Componant::IComposite;
+	}
 private:
 	void add(IComponant* data);
 	void remove(IComponant* data);
 
-	std::vector<IComponant*> m_shildren;
+	KT::Vector<IComponant*> m_shildren;
 };
 
 class RootScene : public IComposite
 {
 public:
 	RootScene(ISceneBase* scene);
-
+	KT::Vector<IComponant*> getFullTree();
+	const KT::Vector<IComponant*> getFullTree() const;
 	ISceneBase* getScene();
 private:
+	void AddFullTree(KT::Vector<IComponant*>& toAdd, KT::Vector<IComponant*> iterate);
 	ISceneBase* m_scene;
 };
 
@@ -71,6 +97,15 @@ public:
 	virtual void Update(const float& deltatime) = 0;
 	virtual void ProssesInput(const sf::Event& event) = 0;
 	virtual void Render() = 0;
+
+	Componant GetComponantType() override
+	{
+		return Componant::ILeaf;
+	}
+	const Componant GetComponantType() const override
+	{
+		return Componant::ILeaf;
+	}
 };
 
 

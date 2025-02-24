@@ -245,20 +245,14 @@ void AutoTurret::Update(const float& deltatime)
 	float angletoRad2 = convertRadToDeg(std::atan2(m_Target->getPosition().y - m_shape->getPosition().y, m_Target->getPosition().x - m_shape->getPosition().x));
 	m_shape->setRotation(angletoRad2);
 	m_fireRate.NextTIck();
-	for (auto& obj : getChildren())
-	{
-		obj->Update(deltatime);
-	}
+	IComposite::Update(deltatime);
 }
 
 void AutoTurret::Render()
 {
 
 	m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<SquareSFML*>(m_shape)->getShape());
-	for (auto& obj : getChildren())
-	{
-		obj->Render();
-	}
+	IComposite::Render();
 }
 
 void AutoTurret::Fire()
