@@ -39,6 +39,12 @@ std::string AnimateSprite::getCurrentPath()
 	return m_textureContainer[m_curentTexture];
 }
 
+void AnimateSprite::resetTexture()
+{
+	m_textureContainer.clear();
+	m_curentTexture = 0;
+}
+
 void AnimateSprite::ChangeToNextPath()
 {
 	if (m_textureContainer.Empty())

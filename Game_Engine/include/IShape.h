@@ -19,6 +19,8 @@ public:
 
 	std::string getCurrentPath();
 
+	void resetTexture();
+
 	void ChangeToNextPath();
 
 	void ChangeToPreviousPath();
@@ -126,15 +128,15 @@ protected:
 class Timer
 {
 public:
-	Timer(const float& timer) :m_TotalTimer(timer), m_CurrentTimer(0) {}
-	bool AutoActionIsReady()
+	Timer(const float& timer) :m_TotalTimer(timer), m_CurrentTimer(0) ,m_start(true){}
+	bool AutoActionIsReady(const float& framerate)
 	{
 		if (m_CurrentTimer >= m_TotalTimer)
 		{
-			m_CurrentTimer = 0;
+			resetTimer();
 			return true;
 		}
-		++m_CurrentTimer;
+		NextTIck(framerate);
 		return false;
 
 
@@ -161,21 +163,108 @@ public:
 	{
 		return m_CurrentTimer;
 	}
-	void NextTIck(const float& idx = 1)
+	void NextTIck(const float& framerate,const float& idx = 1 )
 	{
+		if (!m_start)
+			return ;
 
-		m_CurrentTimer += idx;
+		m_CurrentTimer += framerate*idx;
 		if (m_CurrentTimer >= m_TotalTimer)
 			m_CurrentTimer = m_TotalTimer;
 	}
-	void PreviousTick(const float& idx = 1)
+	void PreviousTick(const float& framerate, const float& idx = 1)
 	{
-		m_CurrentTimer -= idx;
+		if (!m_start)
+			return;
+		m_CurrentTimer -= framerate*idx;
 		if (m_CurrentTimer <= 0)
 			m_CurrentTimer = 0;
 
 	}
+	void Start()
+	{
+		m_start = true;
+	}
+	void Stop()
+	{
+		m_start = false;
+	}
 private:
 	float m_TotalTimer;
 	float m_CurrentTimer;
+	bool m_start;
+};
+
+
+
+class Counter
+{
+public:
+	Counter(const float& count , const float& min = std::numeric_limits<float>::min()) :m_TotalCounter(count), m_minimalCounter(min), m_CurrentCounter(0), m_start(true) {}
+	Counter() :m_TotalCounter(std::numeric_limits<float>::max()), m_minimalCounter(std::numeric_limits<float>::min()), m_CurrentCounter(0), m_start(true) {}
+	bool AutCounterMax()
+	{
+		if (m_CurrentCounter >= m_TotalCounter)
+		{
+			resetCounter();
+			return true;
+		}
+		NextTIck();
+		return false;
+
+
+	}
+	bool CounterMax()
+	{
+		if (m_CurrentCounter >= m_TotalCounter)
+			return true;
+		return false;
+	}
+	void resetCounter()
+	{
+		m_CurrentCounter = 0;
+	}
+	void setNewCounter(const float& max,const float& min)
+	{
+		m_TotalCounter = max;
+		m_minimalCounter = min;
+	}
+	float getTotalCounter()
+	{
+		return m_TotalCounter;
+	}
+	float GetCurrentCounter()
+	{
+		return m_CurrentCounter;
+	}
+	void NextTIck( const float& idx = 1)
+	{
+		if (!m_start)
+			return;
+
+		m_CurrentCounter += idx;
+		if (m_CurrentCounter >= m_TotalCounter)
+			m_CurrentCounter = m_TotalCounter;
+	}
+	void PreviousTick( const float& idx = 1)
+	{
+		if (!m_start)
+			return;
+		m_CurrentCounter -= idx;
+		if (m_CurrentCounter <= m_minimalCounter)
+			m_CurrentCounter = m_minimalCounter;
+	}
+	void Start()
+	{
+		m_start = true;
+	}
+	void Stop()
+	{
+		m_start = false;
+	}
+private:
+	float m_TotalCounter;
+	float m_CurrentCounter;
+	float m_minimalCounter;
+	bool m_start;
 };

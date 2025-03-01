@@ -7,6 +7,7 @@
  * \date   February 2025
  *********************************************************************/
 #include <random>
+#include <SFML/System/Vector2.hpp>
 /**
  * @brief class RandomNumber
  */
@@ -45,3 +46,28 @@ private:
  * @return RandomNumber& 
  */
 RandomNumber& UseRandomNumber();
+
+struct Vec2
+{
+	Vec2(sf::Vector2f Amin_, sf::Vector2f Amax);
+	sf::Vector2f Pmin;
+	sf::Vector2f Pmax;
+};
+
+
+enum class SpanwPosition
+{
+	Left
+	, Up
+	, Down
+	,Right
+};
+
+class RandomSpanw
+{
+public:
+	static sf::Vector2f getPosition(Vec2 zone);
+	static sf::Vector2f getPosition(Vec2 zone, Vec2 RestrictedArea);
+	static sf::Vector2f getPosition(Vec2 zone, SpanwPosition position);
+};
+

@@ -87,11 +87,22 @@ public:
 	void ProssesInput(const sf::Event& event) override {}
 	void Update(const float& deltatime) override;
 	void Render() override;
-private:
+protected:
 	sf::Vector2f m_diffposition;
 	float m_BorderSize;
 };
-
+class WorldFence : public ExternFence
+{
+public:
+	WorldFence(IComposite* scene, IShapeSFML* game_object, Position pos, float BorderSize, float Securitydistance);
+	void HandleCollision(IGameObject* object) override;
+};
+class GameFence : public ExternFence
+{
+public:
+	GameFence(IComposite* scene, IShapeSFML* game_object, Position pos, float BorderSize);
+	void HandleCollision(IGameObject* object) override;
+};
 class ITurret: public NonDestructibleObject , public IComposite
 {
 public:
@@ -110,7 +121,7 @@ protected:
 	IShapeSFML* m_gameObject;
 	Timer m_fireRate;
 	Timer m_coolDown;
-	Timer m_maxShot;
+	Counter m_masShot;
 
 	float m_bulletSpeed;
 	float m_bulletLife;
@@ -173,4 +184,30 @@ public:
 	void Render() override ;
 	void ProssesInput(const sf::Event& event){};
 	void Update(const float& deltatime);
+private:
+	Timer m_elapsedTime;
+
+};
+
+enum class Color
+{
+	Blue
+	,Pink
+	,Orange
+};
+class Life : public NonDestructibleObject , public ILeaf
+{
+public:
+	Life(IComposite* scene, DestructibleObject* game_object,Color color);
+	~Life();
+private:
+	void Render() override;
+	void ProssesInput(const sf::Event& event) {};
+	void Update(const float& deltatime);
+protected:
+	DestructibleObject* m_object;
+	IShapeSFML* m_backgroundShape;
+	AnimateSprite m_animate;
+	AnimateSprite m_animateBackground;
+	float m_sizeDiff;
 };

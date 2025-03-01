@@ -7,7 +7,7 @@ FenceShip::FenceShip(IComposite* scene, IShapeSFML* game_object, Ship* ship) :
 	, m_ship(ship)
 	, m_sprite({ "FenceTmp.png","FenceTmp2.png" })
 	, IsInBorder(false)
-	, m_elapsedTime(50)
+	, m_elapsedTime(0.2)
 {
 	m_shape = new CircleSFML(m_ObjectToProtect->getSize().x / 2, m_ObjectToProtect->getCenter());
 	m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_sprite.getCurrentPath()));
@@ -17,7 +17,7 @@ void FenceShip::Update(const float& deltatime)
 {
 	m_shape->setPosition(m_ObjectToProtect->getPosition());
 	m_ship->m_background->setPosition(VerifyLimit());
-	if (m_elapsedTime.AutoActionIsReady())
+	if (m_elapsedTime.AutoActionIsReady(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds()))
 	{
 		m_sprite.ChangeToNextPath();
 		m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_sprite.getCurrentPath()));
@@ -45,20 +45,20 @@ sf::Vector2f FenceShip::VerifyLimit()
 		float factor = radius / distance;
 		centreBackground.x = positionVaisseau.x - dx * factor;
 		centreBackground.y = positionVaisseau.y - dy * factor;
-		if (m_ship->m_velocity[0] > malocity / 2 || m_ship->m_velocity[1] > malocity / 2 || m_ship->m_velocity[2] > malocity / 2 || m_ship->m_velocity[3] > malocity / 2)
+		/*if (m_ship->m_velocity[0] > malocity / 2 || m_ship->m_velocity[1] > malocity / 2 || m_ship->m_velocity[2] > malocity / 2 || m_ship->m_velocity[3] > malocity / 2)
 		{
 			if (!IsInBorder)
 			{
 				IsInBorder = true;
 				m_ship->ChangeLife(-1);
 			}
-		}
+		}*/
 
 	}
-	if (distance < (radius - (m_ship->m_shape->getSize().x) * (m_ship->m_shape->getSize().x)))
+	/*if (distance < (radius - (m_ship->m_shape->getSize().x) * (m_ship->m_shape->getSize().x)))
 	{
 		IsInBorder = false;
-	}
+	}*/
 
 
 	return centreBackground;
@@ -112,19 +112,79 @@ void ExternFence::Render()
 	m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<RectangleSFML*>(m_shape)->getShape());
 }
 
+WorldFence::WorldFence(IComposite* scene, IShapeSFML* game_object, Position pos, float BorderSize, float Securitydistance): ExternFence(scene,game_object,pos,BorderSize)
+{
+
+	m_shape = new RectangleSFML(m_ObjectToProtect->getSize().x, m_ObjectToProtect->getSize().y, game_object->getCenter());
+	switch (pos)
+	{
+	case Position::Up:
+	{
+		m_shape->setSize(sf::Vector2f(m_ObjectToProtect->getSize().x + Securitydistance *2, m_BorderSize));
+		m_diffposition.x = 0;
+		m_diffposition.y = -(m_ObjectToProtect->getSize().y / 2 - m_BorderSize / 2 + Securitydistance);
+		break;
+	}
+	case Position::Down:
+	{
+		m_shape->setSize(sf::Vector2f(m_ObjectToProtect->getSize().x + Securitydistance * 2, m_BorderSize));
+		m_diffposition.x = 0;
+		m_diffposition.y = m_ObjectToProtect->getSize().y / 2 + m_BorderSize / 2 + Securitydistance;
+		break;
+	}
+	case Position::Left:
+	{
+		m_shape->setSize(sf::Vector2f(m_BorderSize, m_ObjectToProtect->getSize().x + Securitydistance* 2));
+		m_diffposition.x = -(m_ObjectToProtect->getSize().y / 2 - m_BorderSize / 2 + Securitydistance);
+		m_diffposition.y = 0;
+		break;
+	}
+	case Position::Right:
+	{
+		m_shape->setSize(sf::Vector2f(m_BorderSize, m_ObjectToProtect->getSize().x + Securitydistance* 2));
+		m_diffposition.x = +(m_ObjectToProtect->getSize().y / 2 - m_BorderSize / 2 + Securitydistance);
+		m_diffposition.y = 0;
+		break;
+	}
+
+	}
+	m_shape->setCenter(sf::Vector2f(m_shape->getSize().x / 2, m_shape->getSize().y / 2));
+}
+
+void WorldFence::HandleCollision(IGameObject* object)
+{
+	if (getOvbj<WorldFence*>(object))
+		return;
+		object->destroy();
+
+}
+
+GameFence::GameFence(IComposite* scene, IShapeSFML* game_object, Position pos, float BorderSize):ExternFence(scene, game_object, pos, BorderSize)
+{
+}
+
+void GameFence::HandleCollision(IGameObject* object)
+{
+	if (object->globalGameObjectType() != GameObjectType::DestructibleObject)
+		return;
+
+		object->destroy();
+
+}
+
 ITurret::ITurret(IComposite* scene, IShapeSFML* game_object, sf::Vector2f& positiondiff) :
 	NonDestructibleObject(scene)
 	, IComposite(scene)
 	, m_positionDiff(positiondiff)
 	, m_gameObject(game_object)
-	, m_fireRate(15)
+	, m_fireRate(0.5)
 	, m_coolDown(0)
-	, m_maxShot(0)
-	, m_bulletSpeed(10)
+	, m_masShot(100,0)
+	, m_bulletSpeed(5)
 	, m_bulletLife(1)
 	,m_bulletSize(15)
 {
-	
+
 }
 
 void ITurret::setBullet(float Size, float Speed, float hp)
@@ -146,11 +206,11 @@ void ITurret::SetFireRate(const float& fireRate)
 void ITurret::SetOverloadGun(const float& overloadcoodown, float MaxShot)
 {
 	m_coolDown.setNewTimer(overloadcoodown);
-	m_maxShot.setNewTimer(MaxShot);
+	m_masShot.setNewCounter(MaxShot, 0);
 }
 
 
-PlayerSprite::PlayerSprite():AnimateSprite({""})
+PlayerSprite::PlayerSprite():AnimateSprite({"PlayerBullet.png","PlayerBullet2.png" })
 {
 }
 
@@ -175,42 +235,45 @@ FixTurret::FixTurret(IComposite* scene, IShapeSFML* game_object, sf::Vector2f& p
 
 	 m_shape->setPosition(BaseShape.getPosition());
 	 m_shape->setRotation(m_gameObject->getangle() + m_angleDiff);
-	 m_fireRate.NextTIck();
-	 for (auto& obj : getChildren())
-	 {
-		 obj->Update(deltatime);
-	 }
+	 m_fireRate.NextTIck(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds());
+
+	 m_coolDown.NextTIck(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds());
+	if (m_coolDown.ActionIsReady() && m_masShot.GetCurrentCounter() > 0 && !m_masShot.CounterMax())
+	{
+		m_masShot.PreviousTick();
+	}
+	 IComposite::Update(deltatime);
 }
 
 void FixTurret::Render()
 {
 
 	m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<SquareSFML*>(m_shape)->getShape());
-	for (auto& obj : getChildren())
-	{
-		obj->Render();
-	}
+	IComposite::Render();
 }
 
 void FixTurret::Fire()
 {
-	if (m_maxShot.ActionIsReady() && m_fireRate.ActionIsReady())
+	if (m_masShot.CounterMax() && m_fireRate.ActionIsReady())
 	{
 		if (m_coolDown.ActionIsReady())
 		{
-			m_maxShot.resetTimer();
+			m_masShot.resetCounter();
 			m_coolDown.resetTimer();
 		}
-		else
-			m_coolDown.NextTIck();
+		
+			
 	}
-
-	if (m_fireRate.ActionIsReady() && !m_maxShot.ActionIsReady())
+	else
+		m_coolDown.resetTimer();
+	if (m_fireRate.ActionIsReady() && !m_masShot.CounterMax())
 	{
 		new ClassicBullet(PlayerSprite{}, this, this, m_shape->getangle(), m_bulletSpeed, m_bulletSize, m_bulletLife);
-		m_maxShot.NextTIck();
+		m_masShot.NextTIck();
 		m_fireRate.resetTimer();
+		
 	}
+
 
 }
 
@@ -244,8 +307,16 @@ void AutoTurret::Update(const float& deltatime)
 	
 	float angletoRad2 = convertRadToDeg(std::atan2(m_Target->getPosition().y - m_shape->getPosition().y, m_Target->getPosition().x - m_shape->getPosition().x));
 	m_shape->setRotation(angletoRad2);
-	m_fireRate.NextTIck();
+	m_fireRate.NextTIck(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds());
+
+	m_coolDown.NextTIck(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds());
+	if (m_coolDown.ActionIsReady() && m_masShot.GetCurrentCounter() > 0 && !m_masShot.CounterMax())
+	{
+		m_masShot.PreviousTick();
+	}
 	IComposite::Update(deltatime);
+
+
 }
 
 void AutoTurret::Render()
@@ -257,22 +328,25 @@ void AutoTurret::Render()
 
 void AutoTurret::Fire()
 {
-	if (m_maxShot.ActionIsReady() && m_fireRate.ActionIsReady())
+
+	if (m_masShot.CounterMax() && m_fireRate.ActionIsReady())
 	{
 		if (m_coolDown.ActionIsReady())
 		{
-			m_maxShot.resetTimer();
+			m_masShot.resetCounter();
 			m_coolDown.resetTimer();
 		}
-		else
-			m_coolDown.NextTIck();
-	}
 
-	if (m_fireRate.ActionIsReady() && !m_maxShot.ActionIsReady())
+
+	}
+	else
+		m_coolDown.resetTimer();
+	if (m_fireRate.ActionIsReady() && !m_masShot.CounterMax())
 	{
 		new ClassicBullet(PlayerSprite{}, this, this, m_shape->getangle(), m_bulletSpeed, m_bulletSize, m_bulletLife);
-		m_maxShot.NextTIck();
+		m_masShot.NextTIck();
 		m_fireRate.resetTimer();
+
 	}
 
 }
@@ -283,7 +357,7 @@ IBullet::IBullet(AnimateSprite animate,IComposite* scene, ITurret* gun, float an
 	m_gunPosition = m_gun->getShape()->getPosition();
 }
 
-ClassicBullet::ClassicBullet(AnimateSprite animate,IComposite* scene, ITurret* gun, float angle, float speed, float size, float hp) : IBullet(animate,scene, gun, angle, speed, size, hp)
+ClassicBullet::ClassicBullet(AnimateSprite animate,IComposite* scene, ITurret* gun, float angle, float speed, float size, float hp) : IBullet(animate,scene, gun, angle, speed, size, hp),  m_elapsedTime(0.2)
 {
 	m_shape = new SquareSFML(size, m_gunPosition);
 	m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
@@ -304,6 +378,64 @@ void ClassicBullet::Update(const float& deltatime)
 	m_gunPosition += moov;
 	m_shape->setPosition(m_gunPosition);
 
+	if (m_elapsedTime.AutoActionIsReady(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds())) {
+		m_animate.ChangeToNextPath();
+		m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
+	}
+
+}
+
+Life::Life(IComposite* scene, DestructibleObject* game_object, Color color) :NonDestructibleObject(scene), ILeaf(scene),m_object(game_object),m_animate({""}),m_animateBackground({"BlackLife.png"})
+{
+
+	m_backgroundShape = new RectangleSFML(m_object->getShape()->getSize().x, 10, sf::Vector2f(m_object->getShape()->getPosition().x, m_object->getShape()->getPosition().y - m_object->getShape()->getSize().y /2  - 10));
+	m_shape = new RectangleSFML(m_object->getShape()->getSize().x - 5, 10, sf::Vector2f(m_object->getShape()->getPosition().x - 5, m_object->getShape()->getPosition().y - m_object->getShape()->getSize().y /2 -10));
+
+	m_backgroundShape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animateBackground.getCurrentPath()));
+	m_sizeDiff = m_object->getShape()->getSize().x / m_object->getCurrentLife();
+	m_animate.resetTexture();
+	switch (color)
+	{
+	case Color::Blue:
+		{
+		m_animate.add("BlueLife.png");
+		m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
+		}
+	break;
+	case Color::Orange:
+		{
+		m_animate.add("OrangeLife.png");
+		m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
+		}
+		break;
+	case Color::Pink:
+		{
+		m_animate.add("PinkLife.png");
+		m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
+		}
+		break;
+	}
+}
+
+Life::~Life()
+{
+	delete m_backgroundShape;
+	m_backgroundShape = nullptr;
+}
+
+void Life::Render()
+{
+	
+	m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<RectangleSFML*>(m_backgroundShape)->getShape());
+	m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<RectangleSFML*>(m_shape)->getShape());
+}
+
+void Life::Update(const float& deltatime)
+{
+	auto newsize = m_sizeDiff * m_object->getCurrentLife();
+	m_shape->setSize(sf::Vector2f( newsize, m_shape->getSize().y));
+	m_shape->setPosition(sf::Vector2f(m_object->getShape()->getPosition().x - 5, m_object->getShape()->getPosition().y - m_object->getShape()->getSize().y / 2 - 10));
+	m_backgroundShape->setPosition(sf::Vector2f(m_object->getShape()->getPosition().x - 5, m_object->getShape()->getPosition().y - m_object->getShape()->getSize().y / 2 - 10));
 }
 
 Cursor::Cursor(IComposite* scene) :

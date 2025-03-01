@@ -16,7 +16,7 @@ float convertDegToRad(const float& deg)
     return (deg * 3.14159f) / 180;
 }
 
-IGameObject::IGameObject(IComposite* scene):m_scene(scene)
+IGameObject::IGameObject(IComposite* scene):m_scene(scene),m_needDestroy(false)
 {
 
 }
@@ -37,14 +37,33 @@ IShapeSFML* IGameObject::getShape()
     return m_shape;
 }
 
+bool IGameObject::NeedDestroy()
+{
+	return m_needDestroy;
+}
+
+void IGameObject::destroy()
+{
+	m_needDestroy = true;
+}
 
 
 DestructibleObject::DestructibleObject(IComposite* scene, const float& life) :IGameObject(scene), m_life(life)
 {
 }
 
+GameObjectType DestructibleObject::globalGameObjectType()
+{
+	return GameObjectType::DestructibleObject;
+}
+
 NonDestructibleObject::NonDestructibleObject(IComposite* scene) :IGameObject(scene)
 {
+}
+
+GameObjectType NonDestructibleObject::globalGameObjectType()
+{
+	return GameObjectType::NonDestructibleObject;
 }
 
 
@@ -179,7 +198,7 @@ RootScene::RootScene(ISceneBase* scene):IComposite(nullptr),m_scene(scene)
 
 }
 
-KT::Vector<IComponant*> RootScene::getFullTree()
+KT::Vector<IComponant*> IComposite::getFullTree()
 {
 	KT::Vector<IComponant*> Result;
 	AddFullTree(Result, getChildren());
@@ -191,7 +210,7 @@ ISceneBase* RootScene::getScene()
 	return m_scene;
 }
 
-void RootScene::AddFullTree(KT::Vector<IComponant*>& toAdd, KT::Vector<IComponant*> iterate)
+void IComposite::AddFullTree(KT::Vector<IComponant*>& toAdd, KT::Vector<IComponant*> iterate)
 {
 	for (auto it : iterate)
 	{

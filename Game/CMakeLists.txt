@@ -9,11 +9,15 @@ set(HEADERS
  ${HEADER_DIR}/Game.h
  ${HEADER_DIR}/GameObject.h
  ${HEADER_DIR}/Ship.h
+ ${HEADER_DIR}/Collision.h
+ ${HEADER_DIR}/ISpawner.h
 )
 set(SOURCES
 ${SOURCE_DIR}/Game.cpp
 ${SOURCE_DIR}/GameObject.cpp
 ${SOURCE_DIR}/Ship.cpp
+${SOURCE_DIR}/Collision.cpp
+${SOURCE_DIR}/ISpawner.cpp
 )
 
 add_library(${PROJECT_NAME}

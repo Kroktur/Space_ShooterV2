@@ -2,6 +2,7 @@
 #include <KT_Vector.h>
 
 #include "IGameObject.h"
+#include "IGameObject.h"
 #include "SFML/Graphics.hpp"
 
 struct AABB
@@ -23,6 +24,7 @@ enum class Componant
 {
 	IComposite
 	,ILeaf
+	,IGameObject
 };
 
 
@@ -62,6 +64,7 @@ public:
 	 void Render()override;
 	 KT::Vector<IComponant*> getChildren();
 	 const KT::Vector<IComponant*> getChildren() const;
+	 KT::Vector<IComponant*> getFullTree();
 protected:
 
 	//KT::Vector<IComponant*> IterateAllComposite();
@@ -78,7 +81,7 @@ protected:
 private:
 	void add(IComponant* data);
 	void remove(IComponant* data);
-
+	void AddFullTree(KT::Vector<IComponant*>& toAdd, KT::Vector<IComponant*> iterate);
 	KT::Vector<IComponant*> m_shildren;
 };
 
@@ -86,11 +89,10 @@ class RootScene : public IComposite
 {
 public:
 	RootScene(ISceneBase* scene);
-	KT::Vector<IComponant*> getFullTree();
-	const KT::Vector<IComponant*> getFullTree() const;
+	
 	ISceneBase* getScene();
 private:
-	void AddFullTree(KT::Vector<IComponant*>& toAdd, KT::Vector<IComponant*> iterate);
+
 	ISceneBase* m_scene;
 };
 
@@ -112,7 +114,11 @@ public:
 		return Componant::ILeaf;
 	}
 };
-
+enum class GameObjectType
+{
+	DestructibleObject
+	,NonDestructibleObject
+};
 
 class IGameObject 
 {
@@ -125,9 +131,17 @@ public:
 	virtual void Render() = 0;
 	virtual AABB GetBoundingBox();
 	IShapeSFML* getShape();
+	virtual GameObjectType globalGameObjectType() = 0;
+	virtual void HandleCollision(IGameObject* object){}
+	bool NeedDestroy();
+
+	void destroy();
 protected:
+	
 	IComposite* m_scene;
 	IShapeSFML* m_shape;
+private:
+	bool m_needDestroy;
 };
 
 class DestructibleObject : public IGameObject
@@ -139,8 +153,15 @@ public:
 	void ProssesInput(const sf::Event& event) override = 0;
 	void Render() = 0;
 
-	void ChangeLife(const float& life) { m_life += life; }
+	virtual void ChangeLife(const float& life)
+	{
+		m_life += life;
+		if (m_life <= 0)
+			destroy();
+	}
 	float getCurrentLife() { return m_life; }
+	
+	 GameObjectType globalGameObjectType() override;
 protected:
 	float m_life;
 };
@@ -152,5 +173,11 @@ public:
 	void Update(const float& deltatime) override = 0;
 	void ProssesInput(const sf::Event& event) override = 0;
 	void Render() = 0;
+	 GameObjectType globalGameObjectType() override;
 };
 
+template<typename type , typename type2>
+type getOvbj(type2* obj)
+{
+	return dynamic_cast<type>(obj);
+}

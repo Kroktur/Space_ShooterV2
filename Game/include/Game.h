@@ -6,6 +6,7 @@
  * \author kroktur
  * \date   February 2025
  *********************************************************************/
+#include "Collision.h"
 #include "SceneBase.h"
 #include "GameObject.h"
 
@@ -47,4 +48,5 @@ private:
 	sf::RectangleShape m_Ship;
 	//TODO
 	Cursor cursor;
+	Colision collision;
 };

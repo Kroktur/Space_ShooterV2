@@ -6,25 +6,26 @@ Ship::Ship(IComposite* scene, IShapeSFML* background) :
 	, m_background(background)
 	, m_velocity({ 0,0,0,0 })
 	, m_angle(0)
-	, m_elapsedTime(50)
+	, m_elapsedTime(0.2)
 	, m_animate({ "SpaceHero.png", "SpaceHero2.png" })
 	, m_phisics(new MovementInSpace(2000, 0.15f, 0.30f))
 	, m_boost(false)
 	, dashSpeed(0)
-	, cooldown(5000)
+	, cooldown(5)
+, m_invisibility(2.5)
 
 {
 	m_shape = new SquareSFML(150, scene->getRoot()->getScene());
 	m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
-
+	new Life(this, this, Color::Blue);
 	//new FixTurret(this, m_shape, sf::Vector2f(35, -25),0);
 	//new FixTurret(this, m_shape, sf::Vector2f(35, 25), 0);
-	m_turrets[0] = new FixTurret(scene, m_shape, sf::Vector2f(35, -25), 0.75);
-	m_turrets[1] = new FixTurret(scene, m_shape, sf::Vector2f(35, 25), -0.75);
+	m_turrets[0] = new FixTurret(this, m_shape, sf::Vector2f(35, -25), 0.75);
+	m_turrets[1] = new FixTurret(this, m_shape, sf::Vector2f(35, 25), -0.75);
 	for (auto& turret : m_turrets)
 	{
-		turret->SetFireRate(50);
-		turret->SetOverloadGun(0,5);
+		turret->SetFireRate(0.5f);
+		turret->SetOverloadGun(5,10);
 		turret->setBullet(0, 0, 0);
 	}
 }
@@ -64,13 +65,17 @@ void Ship::ProssesInput(const sf::Event& event)
 	}
 	static_cast<MovementInSpace*>(m_phisics)->ExecutePhysics(m_strafe, m_velocity);
 	physics();
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) && cooldown >= 5000)
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) && cooldown >= 5)
 	{
 		if (!m_boost)
 			m_boost = true;
 		cooldown = 0;
 	}
 	++cooldown;
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::P))
+	{
+		ChangeLife(-1);
+	}
 }
 
 void Ship::physics()
@@ -100,12 +105,13 @@ void Ship::Update(const float& deltatime)
 		}
 		dashSpeed += dashSpee1;
 	}
-	if (m_elapsedTime.AutoActionIsReady()) {
+	if (m_elapsedTime.AutoActionIsReady(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds())) {
 		m_animate.ChangeToNextPath();
 		m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
 	}
 	
 	IComposite::Update(deltatime);
+	m_invisibility.NextTIck(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds());
 }
 
 void Ship::Render()
