@@ -242,3 +242,31 @@ private:
 	Timer m_invisibility;
 };
 
+class Comete : public  DestructibleObject, public  IComposite
+{
+public:
+	Comete(IComposite* scene, const sf::Vector2f& Spawnposition, const sf::Vector2f& Size, const float& angle, const float& speed, const float& life);
+	void Render() override;
+	void ProssesInput(const sf::Event& event) {};
+	void Update(const float& deltatime);
+	void HandleCollision(IGameObject* object) override;
+	void ChangeLife(const float& life) override
+	{
+		if (!m_invisibility.ActionIsReady())
+			return;
+
+		m_life += life;
+		if (m_life <= 0)
+			destroy();
+		m_invisibility.resetTimer();
+	}
+private:
+	Timer m_elapsedTime;
+	AnimateSprite m_animate;
+	sf::Vector2f m_psotition;
+	float m_angle;
+	float m_speed;
+	float m_rotation;
+	Timer m_invisibility;
+};
+

@@ -571,3 +571,52 @@ sf::Vector2f MovementInSpace::calculPosition(IShapeSFML* entity, ISceneBase* sce
 	return Newposition;
 }
 
+Comete::Comete(IComposite* scene, const sf::Vector2f& Spawnposition, const sf::Vector2f& Size, const float& angle, const float& speed, const float& life) :
+	DestructibleObject(scene, life)
+	, IComposite(scene)
+	, m_animate({ "Commette.png" })
+	, m_elapsedTime(0.2)
+	, m_speed(speed)
+	, m_psotition(Spawnposition)
+	, m_angle(angle)
+	, m_invisibility(0.2)
+{
+	m_shape = new RectangleSFML(Size.x, Size.y, Spawnposition);
+	m_shape->setRotation(angle);
+	m_rotation = UseRandomNumber().getRandomNumber<int>(-180, 180);
+	m_shape->setRotation(m_rotation);
+	new Life(this, this, Color::Orange);
+}
+
+void Comete::Render()
+{
+	m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<RectangleSFML*>(m_shape)->getShape());
+	IComposite::Render();
+}
+
+void Comete::Update(const float& deltatime)
+{
+	float angleRad = convertDegToRad(m_angle);
+	sf::Vector2f moov(std::cos(angleRad) * m_speed * m_scene->getRoot()->getScene()->getRefreshTime().asSeconds(), std::sin(angleRad) * m_speed * m_scene->getRoot()->getScene()->getRefreshTime().asSeconds());
+	sf::Vector2f ActualPos;
+	m_psotition += moov;
+	m_shape->setPosition(sf::Vector2f(m_scene->getRoot()->getScene()->getBackgroundCenter().x + m_psotition.x, m_scene->getRoot()->getScene()->getBackgroundCenter().y + m_psotition.y));
+
+	if (m_elapsedTime.AutoActionIsReady(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds()))
+	{
+		m_animate.ChangeToNextPath();
+		m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
+	}
+	m_invisibility.NextTIck(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds());
+	IComposite::Update(deltatime);
+}
+
+void Comete::HandleCollision(IGameObject* object)
+{
+	if (object->globalGameObjectType() != GameObjectType::DestructibleObject)
+		return;
+	if (getOvbj<Comete*>(object))
+		return;
+
+	ChangeLife(-1);
+}
