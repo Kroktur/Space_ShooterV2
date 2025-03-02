@@ -66,8 +66,8 @@ enum class SpanwPosition
 class RandomSpanw
 {
 public:
-	static sf::Vector2f getPosition(Vec2 zone);
-	static sf::Vector2f getPosition(Vec2 zone, Vec2 RestrictedArea);
-	static sf::Vector2f getPosition(Vec2 zone, SpanwPosition position);
+	static sf::Vector2f getPosition(Vec2 zone, const sf::Vector2f& size);
+	static sf::Vector2f getPosition(Vec2 zone, Vec2 RestrictedArea , const sf::Vector2f& size);
+	static sf::Vector2f getPosition(Vec2 zone, SpanwPosition position , const sf::Vector2f& size);
 };
 

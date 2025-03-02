@@ -2,6 +2,9 @@
 #include "Ship.h"
 #include "cmath"
 #include <iostream>
+
+#include "RandomNumber.h"
+
 FenceShip::FenceShip(IComposite* scene, IShapeSFML* game_object, Ship* ship) :
 	IFence(scene, game_object)
 	, m_ship(ship)
@@ -385,6 +388,15 @@ void ClassicBullet::Update(const float& deltatime)
 
 }
 
+void ClassicBullet::HandleCollision(IGameObject* object)
+{
+	if (object->globalGameObjectType() != GameObjectType::DestructibleObject)
+		return;
+
+	ChangeLife(-1);
+
+}
+
 Life::Life(IComposite* scene, DestructibleObject* game_object, Color color) :NonDestructibleObject(scene), ILeaf(scene),m_object(game_object),m_animate({""}),m_animateBackground({"BlackLife.png"})
 {
 
@@ -437,6 +449,46 @@ void Life::Update(const float& deltatime)
 	m_shape->setPosition(sf::Vector2f(m_object->getShape()->getPosition().x - 5, m_object->getShape()->getPosition().y - m_object->getShape()->getSize().y / 2 - 10));
 	m_backgroundShape->setPosition(sf::Vector2f(m_object->getShape()->getPosition().x - 5, m_object->getShape()->getPosition().y - m_object->getShape()->getSize().y / 2 - 10));
 }
+
+Asteroid::Asteroid(IComposite* scene, const sf::Vector2f& Spawnposition, const sf::Vector2f& Size, const float& angle,const float& speed , const float& life): DestructibleObject(scene , life), ILeaf(scene),m_animate({"Asteroid.png"}),m_elapsedTime(0.2),m_speed(speed),m_psotition(Spawnposition) , m_angle(angle)
+{
+	m_shape = new RectangleSFML(Size.x, Size.y, Spawnposition);
+	m_shape->setRotation(angle);
+	m_rotation = UseRandomNumber().getRandomNumber<int>(-1,1);
+	m_psotition.x =  m_scene->getRoot()->getScene()->getBackgroundCenter().x;
+	m_psotition.y = m_scene->getRoot()->getScene()->getBackgroundCenter().y;
+}
+
+void Asteroid::Render()
+{
+	m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<RectangleSFML*>(m_shape)->getShape());
+}
+
+void Asteroid::Update(const float& deltatime)
+{
+	float angleRad = convertDegToRad(m_angle);
+	sf::Vector2f moov(std::cos(angleRad) * m_speed, std::sin(angleRad) * m_speed);
+	m_psotition += moov;
+	m_shape->setPosition(m_psotition);
+
+	m_psotition.x = m_scene->getRoot()->getScene()->getBackgroundCenter().x;
+	m_psotition.y = m_scene->getRoot()->getScene()->getBackgroundCenter().y;
+
+	m_shape->setRotation(m_rotation + m_shape->getangle());
+	if (m_elapsedTime.AutoActionIsReady(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds())) {
+		m_animate.ChangeToNextPath();
+		m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
+	}
+}
+
+void Asteroid::HandleCollision(IGameObject* object)
+{
+	if (object->globalGameObjectType() != GameObjectType::DestructibleObject)
+		return;
+
+	ChangeLife(-1);
+}
+
 
 Cursor::Cursor(IComposite* scene) :
 	NonDestructibleObject(scene)

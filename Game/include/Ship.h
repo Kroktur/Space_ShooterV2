@@ -16,7 +16,7 @@ public:
 	void Render() override;
 
 	float anglecalcul();
-
+	void HandleCollision(IGameObject* object) override;
 	void ChangeLife(const float& life) override
 	{
 		if (!m_invisibility.ActionIsReady())

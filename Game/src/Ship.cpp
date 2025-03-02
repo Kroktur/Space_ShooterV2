@@ -129,3 +129,11 @@ float Ship::anglecalcul()
 	float angle = std::atan2(deltaY, deltaX) * 180 / 3.14159f;
 	return angle;
 }
+
+void Ship::HandleCollision(IGameObject* object)
+{
+	if (object->globalGameObjectType() != GameObjectType::DestructibleObject)
+		return;
+
+	ChangeLife(-1);
+}

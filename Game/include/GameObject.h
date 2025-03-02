@@ -184,6 +184,7 @@ public:
 	void Render() override ;
 	void ProssesInput(const sf::Event& event){};
 	void Update(const float& deltatime);
+	void HandleCollision(IGameObject* object) override;
 private:
 	Timer m_elapsedTime;
 
@@ -211,3 +212,21 @@ protected:
 	AnimateSprite m_animateBackground;
 	float m_sizeDiff;
 };
+
+class Asteroid : public  DestructibleObject ,public  ILeaf
+{
+public:
+	Asteroid( IComposite* scene, const sf::Vector2f& Spawnposition , const sf::Vector2f& Size ,const float& angle , const float& speed , const float& life);
+	void Render() override;
+	void ProssesInput(const sf::Event& event) {};
+	void Update(const float& deltatime);
+	void HandleCollision(IGameObject* object) override;
+private:
+	Timer m_elapsedTime;
+	AnimateSprite m_animate;
+	sf::Vector2f m_psotition;
+	float m_angle;
+	float m_speed;
+	float m_rotation;
+};
+
