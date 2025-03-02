@@ -70,6 +70,8 @@ public:
 	 */
 	sf::Vector2f getBackgroundCenter();
 	sf::Vector2f getBackgroundSize();
+	sf::Vector2f getLeftTopCorner();
+	sf::Vector2f getRightBotomCorner();
 	TextureCache* getTexture() { return m_texture; }
 
 

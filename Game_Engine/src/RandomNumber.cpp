@@ -23,7 +23,8 @@ sf::Vector2f RandomSpanw::getPosition(Vec2 zone, const sf::Vector2f& size)
 {
 	auto x = UseRandomNumber().getRandomNumber<int>(zone.Pmin.x + size.x, zone.Pmax.x - size.x);
 	auto y = UseRandomNumber().getRandomNumber<int>(zone.Pmin.y + size.y, zone.Pmax.y - size.y);
-	return sf::Vector2f(x, y);
+	sf::Vector2f result = sf::Vector2f(x, y);
+	return result;
 
 }
 
@@ -32,7 +33,7 @@ sf::Vector2f RandomSpanw::getPosition(Vec2 zone, Vec2 RestrictedArea ,const  sf:
 	auto x = UseRandomNumber().getRandomNumber<int>(zone.Pmin.x + size.x, zone.Pmax.x - size.x);
 	auto y = UseRandomNumber().getRandomNumber<int>(zone.Pmin.y + size.y, zone.Pmax.y - size.y);
 	sf::Vector2f result = sf::Vector2f(x, y);
-	while (result.x > RestrictedArea.Pmin.x && result.x < RestrictedArea.Pmax.x && result.y > RestrictedArea.Pmin.y && result.y < RestrictedArea.Pmax.y)
+	while (result.x > RestrictedArea.Pmin.x -size.x && result.x < RestrictedArea.Pmax.x + size.x && result.y > RestrictedArea.Pmin.y - size.y && result.y < RestrictedArea.Pmax.y + size.y)
 	{
 		result.x = UseRandomNumber().getRandomNumber<int>(zone.Pmin.x + size.x, zone.Pmax.x - size.x);
 		result.y = UseRandomNumber().getRandomNumber<int>(zone.Pmin.y + size.y, zone.Pmax.y - size.y);

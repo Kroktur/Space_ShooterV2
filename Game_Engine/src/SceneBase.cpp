@@ -46,8 +46,29 @@ sf::RenderWindow* ISceneBase::getWindow()
 }
 
 sf::Vector2f ISceneBase::getBackgroundCenter()
-{ return m_Background->getCenter(); }
+{
+	return m_Background->getPosition();
+}
 
 sf::Vector2f ISceneBase::getBackgroundSize()
-{ return m_Background->getSize(); }
+{
+	return m_Background->getSize();
+}
+
+sf::Vector2f ISceneBase::getLeftTopCorner()
+{
+	sf::Vector2f result;
+	result.x =( m_Background->getPosition().x -( m_Background->getSize().x / 2));
+	result.y = (m_Background->getPosition().y -( m_Background->getSize().y / 2));
+	return result;
+
+}
+
+sf::Vector2f ISceneBase::getRightBotomCorner()
+{
+	sf::Vector2f result;
+	result.x = (m_Background->getPosition().x + (m_Background->getSize().x / 2));
+	result.y = (m_Background->getPosition().y + (m_Background->getSize().y / 2));
+	return result;
+}
 

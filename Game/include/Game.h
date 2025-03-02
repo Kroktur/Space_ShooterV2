@@ -9,6 +9,7 @@
 #include "Collision.h"
 #include "SceneBase.h"
 #include "GameObject.h"
+#include "ISpawner.h"
 
 bool Collision(AABB a, AABB b);
 
@@ -49,4 +50,6 @@ private:
 	//TODO
 	Cursor cursor;
 	Colision collision;
+
+	AsteroidSpawner* m_spawner;
 };

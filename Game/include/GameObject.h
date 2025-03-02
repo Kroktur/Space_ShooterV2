@@ -33,9 +33,9 @@ class MovementInSpace : public IPhysics
 {
 public:
 	MovementInSpace(const float& maxVelority, const float& acceleratrion, const float& deceleration);
-	void ExecutePhysics(KT::VectorND<bool, 4>& isStrafing, KT::VectorND<float, 4>& velocity);
+	void ExecutePhysics(KT::VectorND<bool, 4>& isStrafing , float framerate);
 
-	sf::Vector2f calculPosition(IShapeSFML* entity, ISceneBase* scene, KT::VectorND<float, 4>& velocity);
+	sf::Vector2f calculPosition(IShapeSFML* entity, ISceneBase* scene, float framerate);
 	float getMaxVelocity()
 	{
 		return m_maxVelocity;
@@ -44,6 +44,7 @@ private:
 	float m_maxVelocity;
 	float m_acceleration;
 	float m_deceleration;
+	KT::Array<float, 4>velocity;
 };
 
 
@@ -213,7 +214,7 @@ protected:
 	float m_sizeDiff;
 };
 
-class Asteroid : public  DestructibleObject ,public  ILeaf
+class Asteroid : public  DestructibleObject ,public  IComposite
 {
 public:
 	Asteroid( IComposite* scene, const sf::Vector2f& Spawnposition , const sf::Vector2f& Size ,const float& angle , const float& speed , const float& life);
@@ -221,6 +222,16 @@ public:
 	void ProssesInput(const sf::Event& event) {};
 	void Update(const float& deltatime);
 	void HandleCollision(IGameObject* object) override;
+	void ChangeLife(const float& life) override
+	{
+		if (!m_invisibility.ActionIsReady())
+			return;
+
+		m_life += life;
+		if (m_life <= 0)
+			destroy();
+		m_invisibility.resetTimer();
+	}
 private:
 	Timer m_elapsedTime;
 	AnimateSprite m_animate;
@@ -228,5 +239,6 @@ private:
 	float m_angle;
 	float m_speed;
 	float m_rotation;
+	Timer m_invisibility;
 };
 

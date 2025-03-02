@@ -24,7 +24,6 @@ IGameObject::IGameObject(IComposite* scene):m_scene(scene),m_needDestroy(false)
 IGameObject::~IGameObject()
 {
     delete m_shape;
-	std::cout << "Game Object detruit" << std::endl;
 }
 
 AABB IGameObject::GetBoundingBox()

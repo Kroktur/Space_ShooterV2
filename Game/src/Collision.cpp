@@ -16,19 +16,22 @@ void Colision::HandleCollision(KT::Vector<IComponant*> objects)
 	{
 		for (std::make_signed_t<size_t> y = i - 1; y >= 0; --y)
 		{
-			if (!Compose(objects[i],objects[y]))
-			{
-				if (auto* obj1 = getOvbj<IGameObject*>(objects[i]) ; auto obj2 = getOvbj<IGameObject*>(objects[y]))
+				if (auto* obj1 = getOvbj<IGameObject*>(objects[i]))
 				{
-					if (Collision(obj1->GetBoundingBox() , obj2->GetBoundingBox()))
+					if (auto obj2 = getOvbj<IGameObject*>(objects[y]))
 					{
-						obj1->HandleCollision(obj2);
-						obj2->HandleCollision(obj1);
+						if (Collision(obj1->GetBoundingBox(), obj2->GetBoundingBox()))
+						{
+							if (Compose(objects[i], objects[y]))
+								continue;
+							obj1->HandleCollision(obj2);
+							obj2->HandleCollision(obj1);
+						}
 					}
 				}
-			}
 		}
 	}
+
 
 	destroy(objects);
 }

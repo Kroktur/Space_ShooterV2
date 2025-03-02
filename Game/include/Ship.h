@@ -30,17 +30,12 @@ public:
 
 private:
 	IShapeSFML* m_background;
-	KT::VectorND<float, 4> m_velocity;
 	float m_angle;
 	Timer m_elapsedTime;
 	Timer m_invisibility;
 
-	//TODO
-	//Modify this with StateMachin
-	float cooldown;
-	bool m_boost;
-	float dashSpeed;
 	AnimateSprite m_animate;
 	IPhysics* m_phisics;
 	KT::Array<ITurret*,2> m_turrets;
+	KT::VectorND<bool, 4> m_strafe{ false,false,false,false };
 };

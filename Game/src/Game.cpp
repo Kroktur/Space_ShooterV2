@@ -4,11 +4,6 @@
 
 #include "Ship.h"
 #include "IGameObject.h"
-
-
-
-
-
 /*****************************************************************//**
  * \file   RandomNumber.cpp
  * \brief  Implementation of RandomNumber.h
@@ -18,7 +13,7 @@
  *********************************************************************/
 Game::Game(sf::RenderWindow* window, const float& framerate, TextureCache* texture) : ISceneBase(window, framerate, texture), cursor(this)
 {
-	m_Background = new SquareSFML(1000, sf::Vector2f(0, 0));
+	m_Background = new SquareSFML(10000, sf::Vector2f(0, 0));
 	m_Background->setTexture(m_texture->getTexture("galaxie4.png"));
 	auto* ship = new Ship(this, m_Background);
 	new FenceShip(ship, m_Background, static_cast<Ship*>(ship));
@@ -30,22 +25,23 @@ Game::Game(sf::RenderWindow* window, const float& framerate, TextureCache* textu
 	new WorldFence(this, m_Background, Position::Up, 5 , 1000);
 	new WorldFence(this, m_Background, Position::Left, 5, 1000);
 	new WorldFence(this, m_Background, Position::Right, 5 , 1000);
-
-	new Asteroid(this, sf::Vector2f(0, 0), sf::Vector2f(100, 100), 90, 0, 5);
+	m_spawner = new  AsteroidSpawner(this, 10);
 	getWindow()->setMouseCursorVisible(false);
+
+
 }
 
 void Game::Update(const float& deltatime)
 {
-	std::cout << getChildren().Size() << std::endl;
 	for (auto& obj : getChildren())
 	{
 		obj->Update(deltatime);
 	}
 	cursor.Update(deltatime);
-
+	m_spawner->Spawn();
 	auto vec = getFullTree();
 	collision.HandleCollision(vec);
+
 }
 
 void Game::ProssesInput(const sf::Event& event)

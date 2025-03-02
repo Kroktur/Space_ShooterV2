@@ -48,22 +48,7 @@ sf::Vector2f FenceShip::VerifyLimit()
 		float factor = radius / distance;
 		centreBackground.x = positionVaisseau.x - dx * factor;
 		centreBackground.y = positionVaisseau.y - dy * factor;
-		/*if (m_ship->m_velocity[0] > malocity / 2 || m_ship->m_velocity[1] > malocity / 2 || m_ship->m_velocity[2] > malocity / 2 || m_ship->m_velocity[3] > malocity / 2)
-		{
-			if (!IsInBorder)
-			{
-				IsInBorder = true;
-				m_ship->ChangeLife(-1);
-			}
-		}*/
-
 	}
-	/*if (distance < (radius - (m_ship->m_shape->getSize().x) * (m_ship->m_shape->getSize().x)))
-	{
-		IsInBorder = false;
-	}*/
-
-
 	return centreBackground;
 }
 
@@ -158,6 +143,8 @@ void WorldFence::HandleCollision(IGameObject* object)
 {
 	if (getOvbj<WorldFence*>(object))
 		return;
+	if (getOvbj<Cursor*>(object))
+		return;
 		object->destroy();
 
 }
@@ -183,7 +170,7 @@ ITurret::ITurret(IComposite* scene, IShapeSFML* game_object, sf::Vector2f& posit
 	, m_fireRate(0.5)
 	, m_coolDown(0)
 	, m_masShot(100,0)
-	, m_bulletSpeed(5)
+	, m_bulletSpeed(2000)
 	, m_bulletLife(1)
 	,m_bulletSize(15)
 {
@@ -377,7 +364,7 @@ void ClassicBullet::Render()
 void ClassicBullet::Update(const float& deltatime)
 {
 	float angleRad = convertDegToRad(m_gunangle);
-	sf::Vector2f moov(std::cos(angleRad) * m_speed, std::sin(angleRad) * m_speed);
+	sf::Vector2f moov(std::cos(angleRad) * m_speed * m_scene->getRoot()->getScene()->getRefreshTime().asSeconds(), std::sin(angleRad) * m_speed * m_scene->getRoot()->getScene()->getRefreshTime().asSeconds());
 	m_gunPosition += moov;
 	m_shape->setPosition(m_gunPosition);
 
@@ -450,40 +437,51 @@ void Life::Update(const float& deltatime)
 	m_backgroundShape->setPosition(sf::Vector2f(m_object->getShape()->getPosition().x - 5, m_object->getShape()->getPosition().y - m_object->getShape()->getSize().y / 2 - 10));
 }
 
-Asteroid::Asteroid(IComposite* scene, const sf::Vector2f& Spawnposition, const sf::Vector2f& Size, const float& angle,const float& speed , const float& life): DestructibleObject(scene , life), ILeaf(scene),m_animate({"Asteroid.png"}),m_elapsedTime(0.2),m_speed(speed),m_psotition(Spawnposition) , m_angle(angle)
+Asteroid::Asteroid(IComposite* scene, const sf::Vector2f& Spawnposition, const sf::Vector2f& Size, const float& angle,const float& speed , const float& life):
+DestructibleObject(scene , life)
+, IComposite(scene)
+,m_animate({"Asteroid.png"})
+,m_elapsedTime(0.2)
+,m_speed(speed)
+,m_psotition(Spawnposition)
+, m_angle(angle)
+,m_invisibility(0.2)
 {
 	m_shape = new RectangleSFML(Size.x, Size.y, Spawnposition);
 	m_shape->setRotation(angle);
-	m_rotation = UseRandomNumber().getRandomNumber<int>(-1,1);
-	m_psotition.x =  m_scene->getRoot()->getScene()->getBackgroundCenter().x;
-	m_psotition.y = m_scene->getRoot()->getScene()->getBackgroundCenter().y;
+	m_rotation = UseRandomNumber().getRandomNumber<int>(-180,180);
+	m_shape->setRotation(m_rotation);
+	new Life(this, this, Color::Orange);
 }
 
 void Asteroid::Render()
 {
 	m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<RectangleSFML*>(m_shape)->getShape());
+	IComposite::Render();
 }
 
 void Asteroid::Update(const float& deltatime)
 {
 	float angleRad = convertDegToRad(m_angle);
-	sf::Vector2f moov(std::cos(angleRad) * m_speed, std::sin(angleRad) * m_speed);
+	sf::Vector2f moov(std::cos(angleRad) * m_speed * m_scene->getRoot()->getScene()->getRefreshTime().asSeconds(), std::sin(angleRad) * m_speed * m_scene->getRoot()->getScene()->getRefreshTime().asSeconds());
+	sf::Vector2f ActualPos;
 	m_psotition += moov;
-	m_shape->setPosition(m_psotition);
+	m_shape->setPosition(sf::Vector2f(m_scene->getRoot()->getScene()->getBackgroundCenter().x  + m_psotition.x , m_scene->getRoot()->getScene()->getBackgroundCenter().y + m_psotition.y));
 
-	m_psotition.x = m_scene->getRoot()->getScene()->getBackgroundCenter().x;
-	m_psotition.y = m_scene->getRoot()->getScene()->getBackgroundCenter().y;
-
-	m_shape->setRotation(m_rotation + m_shape->getangle());
-	if (m_elapsedTime.AutoActionIsReady(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds())) {
+	if (m_elapsedTime.AutoActionIsReady(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds()))
+	{
 		m_animate.ChangeToNextPath();
 		m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
 	}
+	m_invisibility.NextTIck(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds());
+	IComposite::Update(deltatime);
 }
 
 void Asteroid::HandleCollision(IGameObject* object)
 {
 	if (object->globalGameObjectType() != GameObjectType::DestructibleObject)
+		return;
+	if (getOvbj<Asteroid*>(object))
 		return;
 
 	ChangeLife(-1);
@@ -508,6 +506,9 @@ void Cursor::Update(const float& deltatime)
 {
 	sf::Vector2i mousePos = sf::Mouse::getPosition(*m_scene->getRoot()->getScene()->getWindow());
 	m_shape->setPosition(sf::Vector2f(mousePos.x, mousePos.y));
+
+
+
 }
 
 void Cursor::Render()
@@ -518,51 +519,51 @@ IFence::IFence(IComposite* scene, IShapeSFML* object) :NonDestructibleObject(sce
 
 MovementInSpace::MovementInSpace(const float& maxVelority, const float& acceleratrion, const float& deceleration) :m_maxVelocity(maxVelority), m_acceleration(acceleratrion), m_deceleration(deceleration) {}
 
-void MovementInSpace::ExecutePhysics(KT::VectorND<bool, 4>& isStrafing, KT::VectorND<float, 4>& velocity)
+void MovementInSpace::ExecutePhysics(KT::VectorND<bool, 4>& isStrafing, float framerate)
 {
 	if (isStrafing[trust::Right] == true)
 	{
-		velocity[trust::Right] += m_acceleration;
+		velocity[trust::Right] += m_acceleration * framerate;
 		if (velocity[trust::Right] > m_maxVelocity) velocity[trust::Right] = m_maxVelocity;
 	}
 	else
 	{
-		velocity[0] -= m_deceleration;
+		velocity[0] -= m_deceleration * framerate;
 		if (velocity[0] < 0) velocity[0] = 0;
 	}
 	if (isStrafing[trust::Left] == true)
 	{
-		velocity[trust::Left] += m_acceleration;
+		velocity[trust::Left] += m_acceleration * framerate;
 		if (velocity[trust::Left] > m_maxVelocity) velocity[trust::Left] = m_maxVelocity;
 	}
 	else
 	{
-		velocity[trust::Left] -= m_deceleration;
+		velocity[trust::Left] -= m_deceleration * framerate;
 		if (velocity[trust::Left] < 0) velocity[trust::Left] = 0;
 	}
 	if (isStrafing[trust::Up] == true)
 	{
-		velocity[trust::Up] += m_acceleration;
+		velocity[trust::Up] += m_acceleration * framerate;
 		if (velocity[trust::Up] > m_maxVelocity) velocity[trust::Up] = m_maxVelocity;
 	}
 	else
 	{
-		velocity[trust::Up] -= m_deceleration;
+		velocity[trust::Up] -= m_deceleration * framerate;
 		if (velocity[trust::Up] < 0) velocity[trust::Up] = 0;
 	}
 	if (isStrafing[trust::Down] == true)
 	{
-		velocity[trust::Down] += m_acceleration;
+		velocity[trust::Down] += m_acceleration * framerate;
 		if (velocity[trust::Down] > m_maxVelocity) velocity[trust::Down] = m_maxVelocity;
 	}
 	else
 	{
-		velocity[trust::Down] -= m_deceleration;
+		velocity[trust::Down] -= m_deceleration * framerate;
 		if (velocity[trust::Down] < 0) velocity[trust::Down] = 0;
 	}
 }
 
-sf::Vector2f MovementInSpace::calculPosition(IShapeSFML* entity, ISceneBase* scene, KT::VectorND<float, 4>& velocity)
+sf::Vector2f MovementInSpace::calculPosition(IShapeSFML* entity, ISceneBase* scene, float framerate)
 {
 	auto x = velocity[trust::Left] - velocity[trust::Right];
 	auto y = velocity[trust::Up] - velocity[trust::Down];
