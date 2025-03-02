@@ -42,6 +42,8 @@ void Game::Update(const float& deltatime)
 	auto vec = getFullTree();
 	collision.HandleCollision(vec);
 
+	std::cout << GetCenterWindow().x << " ; " << GetCenterWindow().y << " Centre Potentiel" << std::endl;
+
 }
 
 void Game::ProssesInput(const sf::Event& event)
