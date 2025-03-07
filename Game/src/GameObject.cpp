@@ -3,6 +3,7 @@
 #include "cmath"
 #include <iostream>
 
+#include "Game.h"
 #include "RandomNumber.h"
 
 FenceShip::FenceShip(IComposite* scene, IShapeSFML* game_object, Ship* ship) :
@@ -29,7 +30,7 @@ void FenceShip::Update(const float& deltatime)
 
 void FenceShip::Render()
 {
-	m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<CircleSFML*>(m_shape)->getShape());
+	/*m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<CircleSFML*>(m_shape)->getShape());*/
 }
 
 sf::Vector2f FenceShip::VerifyLimit()
@@ -51,6 +52,51 @@ sf::Vector2f FenceShip::VerifyLimit()
 	}
 	return centreBackground;
 }
+
+GameObjectFence::GameObjectFence(IComposite* scene, IShapeSFML* game_object, IGameObject* ship) :
+	IFence(scene, game_object)
+	, m_Object(ship)
+	, m_sprite({ "FenceTmp.png","FenceTmp2.png" })
+	, IsInBorder(false)
+	, m_elapsedTime(0.2)
+{
+	m_shape = new CircleSFML(m_ObjectToProtect->getSize().x / 2, m_ObjectToProtect->getCenter());
+	m_shape->setPosition(m_ObjectToProtect->getPosition());
+	m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_sprite.getCurrentPath()));
+}
+
+void GameObjectFence::Update(const float& deltatime)
+{
+	m_shape->setPosition(m_ObjectToProtect->getPosition());
+	m_Object->getShape()->setPosition(VerifyLimit());
+}
+
+void GameObjectFence::Render()
+{
+	m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<CircleSFML*>(m_shape)->getShape());
+}
+
+sf::Vector2f GameObjectFence::VerifyLimit()
+{
+	sf::Vector2f centreBackground = m_ObjectToProtect->getPosition();
+	sf::Vector2f positionVaisseau = m_Object->getShape()->getPosition();
+
+	float dx = positionVaisseau.x - centreBackground.x;
+	float dy = positionVaisseau.y - centreBackground.y;
+	float distance = dx * dx + dy * dy;
+	float Border = 2 * (m_shape->getSize().x / 30);
+	float radius = (m_shape->getSize().x / 2 - m_Object->getShape()->getSize().x  - Border) * (m_shape->getSize().x / 2 - m_Object->getShape()->getSize().x - Border);
+	if (distance > radius) {
+		distance = std::sqrt(distance);
+		radius = std::sqrt(radius);
+		float factor = radius / distance;
+		positionVaisseau.x = centreBackground.x + dx * factor;
+		positionVaisseau.y = centreBackground.y + dy * factor;
+	}
+	return positionVaisseau;
+	
+}
+
 
 ExternFence::ExternFence(IComposite* scene, IShapeSFML* game_object, Position pos, float BorderSize) :IFence(scene, game_object), m_diffposition(0, 0), m_BorderSize(BorderSize)
 {
@@ -146,7 +192,7 @@ void WorldFence::HandleCollision(IGameObject* object)
 	if (getOvbj<Cursor*>(object))
 		return;
 		object->destroy();
-
+		
 }
 
 GameFence::GameFence(IComposite* scene, IShapeSFML* game_object, Position pos, float BorderSize):ExternFence(scene, game_object, pos, BorderSize)
@@ -157,7 +203,6 @@ void GameFence::HandleCollision(IGameObject* object)
 {
 	if (object->globalGameObjectType() != GameObjectType::DestructibleObject)
 		return;
-
 		object->destroy();
 
 }
@@ -451,7 +496,15 @@ DestructibleObject(scene , life)
 	m_shape->setRotation(angle);
 	m_rotation = UseRandomNumber().getRandomNumber<int>(-180,180);
 	m_shape->setRotation(m_rotation);
+
+
+	new GameObjectFence(this, m_scene->getRoot()->getScene()->getBackGround(), this);
 	new Life(this, this, Color::Orange);
+	turret = new FixTurret(this, getShape(), sf::Vector2f(0, 0), 0);
+	turret->SetFireRate(0.2f);
+	turret->SetOverloadGun(5, 5);
+	turret->setBullet(0, 0, 0);
+	
 }
 
 void Asteroid::Render()
@@ -475,6 +528,8 @@ void Asteroid::Update(const float& deltatime)
 	}
 	m_invisibility.NextTIck(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds());
 	IComposite::Update(deltatime);
+
+	turret->Fire();
 }
 
 void Asteroid::HandleCollision(IGameObject* object)

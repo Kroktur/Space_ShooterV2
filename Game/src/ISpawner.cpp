@@ -47,7 +47,7 @@ void AsteroidSpawner::Spawn()
 
 
 	auto spawn = RandomSpanw::getPosition(m_SpawnZone,m_RestrictedArea, sf::Vector2f( size.x / 2 ,size.y / 2));
-	new Asteroid(this, spawn, size, angle, speed, life);
+new Asteroid(this, sf::Vector2f(0,0), size, angle, speed, life);
 }
 
 void CometeSpawner::Spawn()

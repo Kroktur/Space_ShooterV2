@@ -25,7 +25,7 @@ Game::Game(sf::RenderWindow* window, const float& framerate, TextureCache* textu
 	new WorldFence(this, m_Background, Position::Up, 5 , 1000);
 	new WorldFence(this, m_Background, Position::Left, 5, 1000);
 	new WorldFence(this, m_Background, Position::Right, 5 , 1000);
-	m_spawner = new  AsteroidSpawner(this, 10);
+	m_spawner = new  AsteroidSpawner(this, 1);
 	getWindow()->setMouseCursorVisible(false);
 
 

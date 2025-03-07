@@ -82,3 +82,8 @@ sf::Vector2f ISceneBase::GetCenterWindow()
 
 }
 
+IShapeSFML* ISceneBase::getBackGround()
+{
+	return m_Background;
+}
+

@@ -74,8 +74,7 @@ public:
 	sf::Vector2f getRightBotomCorner();
 	sf::Vector2f GetCenterWindow();
 	TextureCache* getTexture() { return m_texture; }
-
-
+	IShapeSFML* getBackGround();
 
 protected:
 	IShapeSFML* m_Background;

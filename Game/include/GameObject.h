@@ -74,6 +74,23 @@ private:
 	Timer m_elapsedTime;
 	bool IsInBorder;
 };
+
+class GameObjectFence : public  IFence
+{
+public:
+	GameObjectFence(IComposite* scene, IShapeSFML* game_object, IGameObject* ship);
+	void ProssesInput(const sf::Event& event) override {}
+	void Update(const float& deltatime) override;
+	void Render() override;
+
+private:
+	sf::Vector2f VerifyLimit();
+	IGameObject* m_Object;
+	AnimateSprite m_sprite;
+	Timer m_elapsedTime;
+	bool IsInBorder;
+
+};
 enum class Position
 {
 	Left
@@ -240,6 +257,7 @@ private:
 	float m_speed;
 	float m_rotation;
 	Timer m_invisibility;
+	ITurret* turret;
 };
 
 class Comete : public  DestructibleObject, public  IComposite

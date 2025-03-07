@@ -18,7 +18,7 @@ void Colision::HandleCollision(KT::Vector<IComponant*> objects)
 		{
 				if (auto* obj1 = getOvbj<IGameObject*>(objects[i]))
 				{
-					if (auto obj2 = getOvbj<IGameObject*>(objects[y]))
+					if (auto* obj2 = getOvbj<IGameObject*>(objects[y]))
 					{
 						if (Collision(obj1->GetBoundingBox(), obj2->GetBoundingBox()))
 						{
