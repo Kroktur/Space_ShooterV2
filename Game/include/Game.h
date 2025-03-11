@@ -10,7 +10,6 @@
 #include "SceneBase.h"
 #include "GameObject.h"
 #include "ISpawner.h"
-
 bool Collision(AABB a, AABB b);
 
 /**
@@ -44,12 +43,13 @@ public:
 	 *@brief Render Impl
 	 */
 	virtual void Render() override;
-
+	void spawn();
 private:
 	sf::RectangleShape m_Ship;
 	//TODO
 	Cursor cursor;
 	Colision collision;
-
+	sf::View* m_view;
 	AsteroidSpawner* m_spawner;
+	sf::View* m_minimap;
 };

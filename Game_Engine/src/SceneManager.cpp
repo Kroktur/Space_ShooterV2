@@ -79,6 +79,7 @@ void SceneManager::Exe()
 				m_currentScene->ProssesInput(m_event);
 			}
 		}
+
 		/**
 		 * @brief update while render is late
 		 */

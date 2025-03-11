@@ -130,10 +130,11 @@ public:
 	virtual void ProssesInput(const sf::Event& event) = 0;
 	virtual void Render() = 0;
 	virtual AABB GetBoundingBox();
-	IShapeSFML* getShape();
+	virtual IShapeSFML* getShape();
 	virtual GameObjectType globalGameObjectType() = 0;
 	virtual void HandleCollision(IGameObject* object){}
 	bool NeedDestroy();
+	
 
 	void destroy();
 protected:

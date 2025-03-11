@@ -4,17 +4,17 @@
 class Ship : public DestructibleObject, public IComposite
 {
 public:
-	friend FenceShip;
-	Ship(IComposite* scene, IShapeSFML* background);
+	
+	Ship(IComposite* scene, IShapeSFML* background , sf::View* view);
 	~Ship();
 
 	void ProssesInput(const sf::Event& event) override;
-
+	//IShapeSFML* getShape() override;
 	void physics();
 
 	void Update(const float& deltatime) override;
 	void Render() override;
-
+	AABB GetBoundingBox() override;
 	float anglecalcul();
 	void HandleCollision(IGameObject* object) override;
 	void ChangeLife(const float& life) override
@@ -29,13 +29,14 @@ public:
 	}
 
 private:
-	IShapeSFML* m_background;
 	float m_angle;
 	Timer m_elapsedTime;
 	Timer m_invisibility;
-
 	AnimateSprite m_animate;
 	IPhysics* m_phisics;
 	KT::Array<ITurret*,2> m_turrets;
 	KT::VectorND<bool, 4> m_strafe{ false,false,false,false };
+	sf::View* m_view;
+	sf::Vector2f m_lastPosition;
 };
+

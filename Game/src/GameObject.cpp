@@ -6,53 +6,6 @@
 #include "Game.h"
 #include "RandomNumber.h"
 
-FenceShip::FenceShip(IComposite* scene, IShapeSFML* game_object, Ship* ship) :
-	IFence(scene, game_object)
-	, m_ship(ship)
-	, m_sprite({ "FenceTmp.png","FenceTmp2.png" })
-	, IsInBorder(false)
-	, m_elapsedTime(0.2)
-{
-	m_shape = new CircleSFML(m_ObjectToProtect->getSize().x / 2, m_ObjectToProtect->getCenter());
-	m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_sprite.getCurrentPath()));
-}
-
-void FenceShip::Update(const float& deltatime)
-{
-	m_shape->setPosition(m_ObjectToProtect->getPosition());
-	m_ship->m_background->setPosition(VerifyLimit());
-	if (m_elapsedTime.AutoActionIsReady(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds()))
-	{
-		m_sprite.ChangeToNextPath();
-		m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_sprite.getCurrentPath()));
-	}
-}
-
-void FenceShip::Render()
-{
-	/*m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<CircleSFML*>(m_shape)->getShape());*/
-}
-
-sf::Vector2f FenceShip::VerifyLimit()
-{
-
-	sf::Vector2f centreBackground = m_ObjectToProtect->getPosition();
-	sf::Vector2f positionVaisseau = m_ship->m_shape->getPosition();
-
-	float dx = positionVaisseau.x - centreBackground.x;
-	float dy = positionVaisseau.y - centreBackground.y;
-	float distance = dx * dx + dy * dy;
-	float Border = 2 * (m_shape->getSize().x / 30);
-	float malocity = static_cast<MovementInSpace*>(m_ship->m_phisics)->getMaxVelocity();
-	float radius = (m_shape->getSize().x / 2 - m_ship->m_shape->getSize().x - Border) * (m_shape->getSize().x / 2 - m_ship->m_shape->getSize().x - Border);
-	if (distance > radius) {
-		float factor = radius / distance;
-		centreBackground.x = positionVaisseau.x - dx * factor;
-		centreBackground.y = positionVaisseau.y - dy * factor;
-	}
-	return centreBackground;
-}
-
 GameObjectFence::GameObjectFence(IComposite* scene, IShapeSFML* game_object, IGameObject* ship) :
 	IFence(scene, game_object)
 	, m_Object(ship)
@@ -69,6 +22,11 @@ void GameObjectFence::Update(const float& deltatime)
 {
 	m_shape->setPosition(m_ObjectToProtect->getPosition());
 	m_Object->getShape()->setPosition(VerifyLimit());
+	if (m_elapsedTime.AutoActionIsReady(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds()))
+	{
+		m_sprite.ChangeToNextPath();
+		m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_sprite.getCurrentPath()));
+	}
 }
 
 void GameObjectFence::Render()
@@ -215,7 +173,7 @@ ITurret::ITurret(IComposite* scene, IShapeSFML* game_object, sf::Vector2f& posit
 	, m_fireRate(0.5)
 	, m_coolDown(0)
 	, m_masShot(100,0)
-	, m_bulletSpeed(2000)
+	, m_bulletSpeed(500)
 	, m_bulletLife(1)
 	,m_bulletSize(15)
 {
@@ -265,6 +223,7 @@ FixTurret::FixTurret(IComposite* scene, IShapeSFML* game_object, sf::Vector2f& p
 		 m_positionDiff.x * sin(angleRad) + m_positionDiff.y * cos(angleRad)
 	 );
 
+
 	 BaseShape.setPosition(gamePos + rotatedOffset);
 	 BaseShape.setRotation(m_gameObject->getangle());
 
@@ -282,7 +241,7 @@ FixTurret::FixTurret(IComposite* scene, IShapeSFML* game_object, sf::Vector2f& p
 
 void FixTurret::Render()
 {
-
+	m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<SquareSFML>(BaseShape).getShape());
 	m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<SquareSFML*>(m_shape)->getShape());
 	IComposite::Render();
 }
@@ -296,8 +255,6 @@ void FixTurret::Fire()
 			m_masShot.resetCounter();
 			m_coolDown.resetTimer();
 		}
-		
-			
 	}
 	else
 		m_coolDown.resetTimer();
@@ -397,7 +354,7 @@ ClassicBullet::ClassicBullet(AnimateSprite animate,IComposite* scene, ITurret* g
 	m_shape = new SquareSFML(size, m_gunPosition);
 	m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
 	m_shape->setRotation(m_gunangle);
-
+	m_velocity = gun->getShape()->getVelocity();
 }
 
 void ClassicBullet::Render()
@@ -409,9 +366,24 @@ void ClassicBullet::Render()
 void ClassicBullet::Update(const float& deltatime)
 {
 	float angleRad = convertDegToRad(m_gunangle);
-	sf::Vector2f moov(std::cos(angleRad) * m_speed * m_scene->getRoot()->getScene()->getRefreshTime().asSeconds(), std::sin(angleRad) * m_speed * m_scene->getRoot()->getScene()->getRefreshTime().asSeconds());
-	m_gunPosition += moov;
-	m_shape->setPosition(m_gunPosition);
+	float dx = std::cos(angleRad) * m_speed * m_scene->getRoot()->getScene()->getRefreshTime().asSeconds() + m_velocity.x;
+	float dy = std::sin(angleRad) * m_speed * m_scene->getRoot()->getScene()->getRefreshTime().asSeconds() + m_velocity.y;
+	sf::Vector2f position = m_shape->getPosition();
+	m_shape->setPosition(sf::Vector2f(position.x + dx, position.y + dy));
+
+	//float angleRad = convertDegToRad(m_gunangle);
+	//float deltaTime = m_scene->getRoot()->getScene()->getRefreshTime().asSeconds();
+
+	//// Récupérer la vitesse de l'objet qui tire (vaisseau, canon, etc.)
+	//sf::Vector2f parentVelocity = m_parent->getVelocity(); // Suppose que l'objet tireur a une méthode getVelocity()
+
+	//// Calcul du déplacement de la balle en fonction de son propre mouvement + inertie
+	//float dx = std::cos(angleRad) * m_speed * deltaTime + parentVelocity.x * deltaTime;
+	//float dy = std::sin(angleRad) * m_speed * deltaTime + parentVelocity.y * deltaTime;
+
+	//// Mise à jour de la position de la balle
+	//sf::Vector2f position = m_shape->getPosition();
+	//m_shape->setPosition(sf::Vector2f(position.x + dx, position.y + dy));
 
 	if (m_elapsedTime.AutoActionIsReady(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds())) {
 		m_animate.ChangeToNextPath();
@@ -429,14 +401,14 @@ void ClassicBullet::HandleCollision(IGameObject* object)
 
 }
 
-Life::Life(IComposite* scene, DestructibleObject* game_object, Color color) :NonDestructibleObject(scene), ILeaf(scene),m_object(game_object),m_animate({""}),m_animateBackground({"BlackLife.png"})
+Life::Life(IComposite* scene, DestructibleObject* game_object, Color color,IShapeSFML* shape) :NonDestructibleObject(scene), ILeaf(scene),m_object(game_object),m_animate({""}),m_animateBackground({"BlackLife.png"}),m_shapeSuper(shape)
 {
 
-	m_backgroundShape = new RectangleSFML(m_object->getShape()->getSize().x, 10, sf::Vector2f(m_object->getShape()->getPosition().x, m_object->getShape()->getPosition().y - m_object->getShape()->getSize().y /2  - 10));
-	m_shape = new RectangleSFML(m_object->getShape()->getSize().x - 5, 10, sf::Vector2f(m_object->getShape()->getPosition().x - 5, m_object->getShape()->getPosition().y - m_object->getShape()->getSize().y /2 -10));
+	m_backgroundShape = new RectangleSFML(m_shapeSuper->getSize().x, 10, sf::Vector2f(m_object->getShape()->getPosition().x, m_object->getShape()->getPosition().y - m_object->getShape()->getSize().y /2  - 10));
+	m_shape = new RectangleSFML(m_shapeSuper->getSize().x - 5, 10, sf::Vector2f(m_object->getShape()->getPosition().x - 5, m_object->getShape()->getPosition().y - m_object->getShape()->getSize().y /2 -10));
 
 	m_backgroundShape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animateBackground.getCurrentPath()));
-	m_sizeDiff = m_object->getShape()->getSize().x / m_object->getCurrentLife();
+	m_sizeDiff = m_shapeSuper->getSize().x / m_object->getCurrentLife();
 	m_animate.resetTexture();
 	switch (color)
 	{
@@ -478,8 +450,8 @@ void Life::Update(const float& deltatime)
 {
 	auto newsize = m_sizeDiff * m_object->getCurrentLife();
 	m_shape->setSize(sf::Vector2f( newsize, m_shape->getSize().y));
-	m_shape->setPosition(sf::Vector2f(m_object->getShape()->getPosition().x - 5, m_object->getShape()->getPosition().y - m_object->getShape()->getSize().y / 2 - 10));
-	m_backgroundShape->setPosition(sf::Vector2f(m_object->getShape()->getPosition().x - 5, m_object->getShape()->getPosition().y - m_object->getShape()->getSize().y / 2 - 10));
+	m_shape->setPosition(sf::Vector2f(m_shapeSuper->getPosition().x - 5, m_shapeSuper->getPosition().y - m_shapeSuper->getSize().y / 2 - 10));
+	m_backgroundShape->setPosition(sf::Vector2f(m_shapeSuper->getPosition().x - 5, m_shapeSuper->getPosition().y - m_shapeSuper->getSize().y / 2 - 10));
 }
 
 Asteroid::Asteroid(IComposite* scene, const sf::Vector2f& Spawnposition, const sf::Vector2f& Size, const float& angle,const float& speed , const float& life):
@@ -498,13 +470,8 @@ DestructibleObject(scene , life)
 	m_shape->setRotation(m_rotation);
 
 
-	new GameObjectFence(this, m_scene->getRoot()->getScene()->getBackGround(), this);
-	new Life(this, this, Color::Orange);
-	turret = new FixTurret(this, getShape(), sf::Vector2f(0, 0), 0);
-	turret->SetFireRate(0.2f);
-	turret->SetOverloadGun(5, 5);
-	turret->setBullet(0, 0, 0);
-	
+	new Life(this, this, Color::Orange,getShape());
+
 }
 
 void Asteroid::Render()
@@ -515,12 +482,12 @@ void Asteroid::Render()
 
 void Asteroid::Update(const float& deltatime)
 {
-	float angleRad = convertDegToRad(m_angle);
-	sf::Vector2f moov(std::cos(angleRad) * m_speed * m_scene->getRoot()->getScene()->getRefreshTime().asSeconds(), std::sin(angleRad) * m_speed * m_scene->getRoot()->getScene()->getRefreshTime().asSeconds());
-	sf::Vector2f ActualPos;
-	m_psotition += moov;
-	m_shape->setPosition(sf::Vector2f(m_scene->getRoot()->getScene()->getBackgroundCenter().x  + m_psotition.x , m_scene->getRoot()->getScene()->getBackgroundCenter().y + m_psotition.y));
 
+	float angleRad = convertDegToRad(m_angle);
+	float dx = std::cos(angleRad) * m_speed * m_scene->getRoot()->getScene()->getRefreshTime().asSeconds();
+	float dy = std::sin(angleRad) * m_speed * m_scene->getRoot()->getScene()->getRefreshTime().asSeconds();
+	sf::Vector2f position = m_shape->getPosition();
+	m_shape->setPosition(sf::Vector2f(position.x + dx, position.y + dy));
 	if (m_elapsedTime.AutoActionIsReady(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds()))
 	{
 		m_animate.ChangeToNextPath();
@@ -528,12 +495,12 @@ void Asteroid::Update(const float& deltatime)
 	}
 	m_invisibility.NextTIck(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds());
 	IComposite::Update(deltatime);
-
-	turret->Fire();
 }
 
 void Asteroid::HandleCollision(IGameObject* object)
 {
+	if (auto wall = getOvbj<Wall*>(object))
+		wall->verifylimits(this);
 	if (object->globalGameObjectType() != GameObjectType::DestructibleObject)
 		return;
 	if (getOvbj<Asteroid*>(object))
@@ -559,8 +526,9 @@ void Cursor::ProssesInput(const sf::Event& event)
 
 void Cursor::Update(const float& deltatime)
 {
-	sf::Vector2i mousePos = sf::Mouse::getPosition(*m_scene->getRoot()->getScene()->getWindow());
-	m_shape->setPosition(sf::Vector2f(mousePos.x, mousePos.y));
+	sf::Vector2i mousePosWindow = sf::Mouse::getPosition(*m_scene->getRoot()->getScene()->getWindow());
+	sf::Vector2f mousePosScene = m_scene->getRoot()->getScene()->getWindow()->mapPixelToCoords(mousePosWindow);
+	m_shape->setPosition(sf::Vector2f(mousePosScene.x, mousePosScene.y));
 
 
 
@@ -620,8 +588,8 @@ void MovementInSpace::ExecutePhysics(KT::VectorND<bool, 4>& isStrafing, float fr
 
 sf::Vector2f MovementInSpace::calculPosition(IShapeSFML* entity, ISceneBase* scene, float framerate)
 {
-	auto x = velocity[trust::Left] - velocity[trust::Right];
-	auto y = velocity[trust::Up] - velocity[trust::Down];
+	auto x = velocity[trust::Right] - velocity[trust::Left];
+	auto y = velocity[trust::Down] - velocity[trust::Up];
 	sf::Vector2f Newposition = { entity->getPosition().x + ((x * scene->getRefreshTime().asSeconds())),entity->getPosition().y + ((y * scene->getRefreshTime().asSeconds())) };
 	return Newposition;
 }
@@ -640,7 +608,7 @@ Comete::Comete(IComposite* scene, const sf::Vector2f& Spawnposition, const sf::V
 	m_shape->setRotation(angle);
 	m_rotation = UseRandomNumber().getRandomNumber<int>(-180, 180);
 	m_shape->setRotation(m_rotation);
-	new Life(this, this, Color::Orange);
+	new Life(this, this, Color::Orange,getShape());
 }
 
 void Comete::Render()
@@ -652,10 +620,10 @@ void Comete::Render()
 void Comete::Update(const float& deltatime)
 {
 	float angleRad = convertDegToRad(m_angle);
-	sf::Vector2f moov(std::cos(angleRad) * m_speed * m_scene->getRoot()->getScene()->getRefreshTime().asSeconds(), std::sin(angleRad) * m_speed * m_scene->getRoot()->getScene()->getRefreshTime().asSeconds());
-	sf::Vector2f ActualPos;
-	m_psotition += moov;
-	m_shape->setPosition(sf::Vector2f(m_scene->getRoot()->getScene()->getBackgroundCenter().x + m_psotition.x, m_scene->getRoot()->getScene()->getBackgroundCenter().y + m_psotition.y));
+	float dx = std::cos(angleRad) * m_speed * m_scene->getRoot()->getScene()->getRefreshTime().asSeconds();
+	float dy = std::sin(angleRad) * m_speed * m_scene->getRoot()->getScene()->getRefreshTime().asSeconds();
+	sf::Vector2f position = m_shape->getPosition();
+	m_shape->setPosition(sf::Vector2f(position.x + dx, position.y + dy));
 
 	if (m_elapsedTime.AutoActionIsReady(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds()))
 	{
@@ -675,3 +643,56 @@ void Comete::HandleCollision(IGameObject* object)
 
 	ChangeLife(-1);
 }
+
+Wall::Wall(IComposite* scene, const sf::Vector2f& Spawnposition, const sf::Vector2f& Size, Rotation rotation):IComposite(scene),NonDestructibleObject(scene),m_rotation(rotation), m_SpanwPosition(Spawnposition)
+{
+	m_shape = new RectangleSFML(Size.x, Size.y, m_scene->getRoot()->getScene()->getBackgroundCenter() + Spawnposition);
+	if (m_rotation == Rotation::Vertical)
+		m_shape->setRotation(90);
+}
+
+void Wall::Render()
+{
+	m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<RectangleSFML*>(m_shape)->getShape());
+	IComposite::Render();
+}
+
+void Wall::Update(const float& deltatime)
+{
+	m_shape->setPosition(m_scene->getRoot()->getScene()->getBackgroundCenter() + m_SpanwPosition);
+	IComposite::Update(deltatime);
+}
+void Wall::HandleCollision(IGameObject* object)
+{
+	/*if (getOvbj<Ship*>(object))
+		throw;*/
+}
+void Wall::verifylimits(IGameObject* object)
+{
+	auto hitbox = object->getShape()->GetBoundingBox();
+	auto myhitbox = GetBoundingBox();
+
+	if (hitbox.Amax.y > myhitbox.Amin.y && hitbox.Amin.y < myhitbox.Amin.y && myhitbox.Amax.y > hitbox.Amax.y)
+	{
+		object->getShape()->setPosition(sf::Vector2f(object->getShape()->getPosition().x, myhitbox.Amin.y - object->getShape()->getSize().y / 2));
+	}
+
+	else if (hitbox.Amin.y < myhitbox.Amax.y && hitbox.Amin.y > myhitbox.Amin.y && myhitbox.Amax.y < hitbox.Amax.y)
+	{
+		object->getShape()->setPosition(sf::Vector2f(object->getShape()->getPosition().x, myhitbox.Amax.y + object->getShape()->getSize().y / 2));
+	}
+	else if (hitbox.Amax.x > myhitbox.Amin.x && hitbox.Amin.x < myhitbox.Amin.x && myhitbox.Amax.x > hitbox.Amax.x)
+		{
+		object->getShape()->setPosition(sf::Vector2f(myhitbox.Amin.x - object->getShape()->getSize().x / 2, object->getShape()->getPosition().y));
+		}
+	else if (hitbox.Amin.x < myhitbox.Amax.x && hitbox.Amin.x > myhitbox.Amin.x && myhitbox.Amax.x < hitbox.Amax.x)
+	{
+		object->getShape()->setPosition(sf::Vector2f(myhitbox.Amax.x + object->getShape()->getSize().x / 2, object->getShape()->getPosition().y));
+	}
+
+	
+
+}
+
+
+ 

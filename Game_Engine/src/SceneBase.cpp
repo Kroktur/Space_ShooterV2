@@ -74,11 +74,8 @@ sf::Vector2f ISceneBase::getRightBotomCorner()
 
 sf::Vector2f ISceneBase::GetCenterWindow()
 {
-	sf::Vector2f centreFenetre = getWindow()->getView().getCenter();
-	sf::Vector2f centreBackground = m_Background->getPosition();
-	sf::Vector2f positionRelative = centreFenetre - centreBackground;
-
-	return positionRelative;
+	return m_Window->getView().getCenter();
+	
 
 }
 

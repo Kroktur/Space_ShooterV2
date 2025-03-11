@@ -108,6 +108,11 @@ AABB RectangleSFML::GetBoundingBox()
 	return boundingbox;
 }
 
+void RectangleSFML::moove(sf::Vector2f moov)
+{
+	m_shape.move(moov);
+}
+
 sf::Vector2f RectangleSFML::getPosition()
 {
 	return m_shape.getPosition();
@@ -130,6 +135,7 @@ void RectangleSFML::setTexture(const sf::Texture& texture)
 
 void RectangleSFML::setPosition(const sf::Vector2f& position)
 {
+	lastPosition = getPosition();
 	m_shape.setPosition(position);
 }
 
@@ -208,6 +214,11 @@ AABB CircleSFML::GetBoundingBox()
 	return boundingbox;
 }
 
+void CircleSFML::moove(sf::Vector2f moov)
+{
+	m_shape.move(moov);
+}
+
 sf::Vector2f CircleSFML::getPosition()
 {
 	return m_shape.getPosition();
@@ -230,6 +241,7 @@ void CircleSFML::setTexture(const sf::Texture& texture)
 
 void CircleSFML::setPosition(const sf::Vector2f& position)
 {
+	lastPosition = getPosition();
 	m_shape.setPosition(position);
 }
 

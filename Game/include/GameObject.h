@@ -59,22 +59,6 @@ public:
 protected:
 	IShapeSFML* m_ObjectToProtect;
 };
-class FenceShip : public IFence
-{
-public:
-	FenceShip(IComposite* scene, IShapeSFML* game_object, Ship* ship);
-	void ProssesInput(const sf::Event& event) override {}
-	void Update(const float& deltatime) override;
-	void Render() override;
-
-private:
-	sf::Vector2f VerifyLimit();
-	Ship* m_ship;
-	AnimateSprite m_sprite;
-	Timer m_elapsedTime;
-	bool IsInBorder;
-};
-
 class GameObjectFence : public  IFence
 {
 public:
@@ -162,6 +146,7 @@ public:
 private:
 	float m_angleDiff;
 	SquareSFML BaseShape;
+	
 };
 
 class AutoTurret : public ITurret
@@ -205,6 +190,7 @@ public:
 	void HandleCollision(IGameObject* object) override;
 private:
 	Timer m_elapsedTime;
+	sf::Vector2f m_velocity;
 
 };
 
@@ -217,7 +203,7 @@ enum class Color
 class Life : public NonDestructibleObject , public ILeaf
 {
 public:
-	Life(IComposite* scene, DestructibleObject* game_object,Color color);
+	Life(IComposite* scene, DestructibleObject* game_object,Color color, IShapeSFML* shape);
 	~Life();
 private:
 	void Render() override;
@@ -228,6 +214,7 @@ protected:
 	IShapeSFML* m_backgroundShape;
 	AnimateSprite m_animate;
 	AnimateSprite m_animateBackground;
+	IShapeSFML* m_shapeSuper;
 	float m_sizeDiff;
 };
 
@@ -257,7 +244,6 @@ private:
 	float m_speed;
 	float m_rotation;
 	Timer m_invisibility;
-	ITurret* turret;
 };
 
 class Comete : public  DestructibleObject, public  IComposite
@@ -287,4 +273,24 @@ private:
 	float m_rotation;
 	Timer m_invisibility;
 };
+
+enum class Rotation
+{
+	Vertical
+	,Horizontal
+};
+class Wall : public NonDestructibleObject, public IComposite
+{
+public:
+	Wall(IComposite* scene, const sf::Vector2f& Spawnposition, const sf::Vector2f& Size, Rotation rotation = Rotation::Horizontal);
+	void Render() override;
+	void ProssesInput(const sf::Event& event) {}
+	void Update(const float& deltatime) override;
+	void verifylimits(IGameObject* object);
+	void HandleCollision(IGameObject* object) override;
+private:
+	Rotation m_rotation;
+	sf::Vector2f m_SpanwPosition;
+};
+
 

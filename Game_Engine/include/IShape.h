@@ -36,6 +36,7 @@ private:
 class IShapeSFML
 {
 public:
+	IShapeSFML() { lastPosition = { 0,0 }; }
 	virtual ~IShapeSFML() = default;
 	virtual sf::Vector2f getSize() = 0;
 	virtual sf::Vector2f getPosition() = 0;
@@ -46,8 +47,11 @@ public:
 	virtual void setTexture(const sf::Texture& texture) = 0;
 	virtual void setCenter(sf::Vector2f) = 0;
 	virtual sf::Vector2f getCenter() = 0;
-
+	virtual void moove(sf::Vector2f) = 0;
 	virtual AABB GetBoundingBox() = 0;
+	sf::Vector2f getVelocity() { return  getPosition() - lastPosition; }
+protected:
+	sf::Vector2f lastPosition;
 };
 class RectangleSFML : public IShapeSFML
 {
@@ -79,6 +83,7 @@ public:
 
 	 AABB GetBoundingBox()override;
 
+	 void moove(sf::Vector2f moov) override;
 protected:
 	sf::RectangleShape m_shape;
 };
@@ -122,6 +127,7 @@ public:
 	sf::CircleShape& getShape();
 	AABB GetBoundingBox()override;
 
+	void moove(sf::Vector2f moov) override;
 protected:
 	sf::CircleShape m_shape;
 };
