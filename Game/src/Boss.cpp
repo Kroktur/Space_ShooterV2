@@ -34,7 +34,7 @@ Boss::Boss(IComposite* scene, const sf::Vector2f& spawnPosition, float maxHealth
     , m_maxLife(maxHealth)
     , m_speed(100.0f)
     , m_behaviorTree(nullptr)
-    , m_animate({ "SpaceHero.png", "SpaceHero2.png" })
+    , m_animate({ "Boss.png", "Boss.png" })
     , m_animationTimer(0.3)
     , m_offensiveBoostActive(false)
     , m_damageMultiplier(1.0f)
