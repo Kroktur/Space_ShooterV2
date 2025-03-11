@@ -1,13 +1,7 @@
 #include "TextureCache.h"
 #include <SFML/Graphics.hpp>
 #include <filesystem>
-/*****************************************************************//**
- * \file   TextureCache.cpp
- * \brief  Implementation of TextureCache.h
- *
- * \author kroktur
- * \date   February 2025
- *********************************************************************/
+
 TextureCache::TextureCache(const std::string& execFilePath) : m_execFilePath(execFilePath)
 {}
 

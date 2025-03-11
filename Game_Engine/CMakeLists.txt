@@ -9,12 +9,16 @@ set(HEADERS
  ${HEADER_DIR}/SceneManager.h
  ${HEADER_DIR}/SceneBase.h
  ${HEADER_DIR}/RandomNumber.h
+ ${HEADER_DIR}/IGameObject.h
+ ${HEADER_DIR}/IShape.h
 )
 set(SOURCES
 ${SOURCE_DIR}/TextureCache.cpp
 ${SOURCE_DIR}/SceneManager.cpp
 ${SOURCE_DIR}/SceneBase.cpp
 ${SOURCE_DIR}/RandomNumber.cpp
+${SOURCE_DIR}/IGameObject.cpp
+${SOURCE_DIR}/IShape.cpp
 )
 add_library(${PROJECT_NAME}
 

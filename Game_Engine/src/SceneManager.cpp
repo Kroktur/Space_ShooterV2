@@ -1,12 +1,6 @@
 #include "SceneManager.h"
 #include "SceneBase.h"
-/*****************************************************************//**
- * \file   SceneManager.cpp
- * \brief  Implementation of SceneManager.h
- * 
- * \author kroktur
- * \date   February 2025
- *********************************************************************/
+
 SceneManager::SceneManager(const std::string& execFilePath,const size_t& width, const size_t& height, const std::string& title, const sfStyle& style) :
 m_window(new sf::RenderWindow(sf::VideoMode(width, height)
 	, title, style))
@@ -32,9 +26,6 @@ SceneManager::~SceneManager()
 
 void SceneManager::Exe()
 {
-	/**
-	 * @brief Gaming loop
-	 */
 	const sf::Clock clock;
 	const sf::Clock spawnClock;
 	float previous = clock.getElapsedTime().asSeconds();
@@ -47,19 +38,10 @@ void SceneManager::Exe()
 		previous = current;
 		lag += elapsed;
 
-		/**
-		 * @brief set Scene
-		 */
 		SetScene(m_currentScene->getSceneIdx());
 
-		/**
-		 * @brief clear window
-		 */
 		m_window->clear();
 
-		/**
-		 * @brief event for closing the window
-		 */
 		while (m_window->pollEvent(m_event)) {
 			if (m_event.type == sf::Event::Closed ||
 				(m_event.type == sf::Event::KeyPressed && m_event.key.code == sf::Keyboard::Escape)) {
@@ -67,30 +49,24 @@ void SceneManager::Exe()
 			}
 		}
 
-		/**
-		 * @brief prosses input for the scene
-		 */
-		m_currentScene->ProssesInput(m_event);
+		if (m_window->hasFocus())
+		{
+			sf::Vector2i mousePos = sf::Mouse::getPosition(*m_window);
+			if (mousePos.x >= 0 && mousePos.x < m_window->getSize().x && mousePos.y >= 0 && mousePos.y < m_window->getSize().y)
+			{
+				m_currentScene->ProssesInput(m_event);
+			}
+		}
 
-		/**
-		 * @brief update while render is late
-		 */
 		while (m_currentScene->getRefreshTime().asMilliseconds() > 0.0
 			&& lag >= m_currentScene->getRefreshTime().asMilliseconds())
 		{
-
 			m_currentScene->Update(elapsed);
 			lag -= m_currentScene->getRefreshTime().asMilliseconds();
 		}
-	
-		/**
-		 * @brief drow everithing
-		 */
 		m_currentScene->Render();
 		m_window->display();
 	}
-
-
 }
 
 void SceneManager::AddScene(ISceneBase* scene)
