@@ -77,10 +77,10 @@ Boss::~Boss()
 }
 
 void Boss::createWeapons(float weaponOffset) {
-    auto weapon1 = new FixTurret(this, getShape(), sf::Vector2f(-weaponOffset, -weaponOffset), 0);
-    auto weapon2 = new FixTurret(this, getShape(), sf::Vector2f(weaponOffset, -weaponOffset), 0);
-    auto weapon3 = new FixTurret(this, getShape(), sf::Vector2f(-weaponOffset, weaponOffset), 0);
-    auto weapon4 = new FixTurret(this, getShape(), sf::Vector2f(weaponOffset, weaponOffset), 0);
+    auto weapon1 = new FixTurret(this, getShape(), sf::Vector2f(-weaponOffset/3, -weaponOffset/3), 0);
+    auto weapon2 = new FixTurret(this, getShape(), sf::Vector2f(weaponOffset/2, -weaponOffset/2), 0);
+    auto weapon3 = new FixTurret(this, getShape(), sf::Vector2f(-weaponOffset/3, weaponOffset/3), 0);
+    auto weapon4 = new FixTurret(this, getShape(), sf::Vector2f(weaponOffset/2, weaponOffset/2), 0);
 
     m_weapons = { weapon1, weapon2, weapon3, weapon4 };
 
